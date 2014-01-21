@@ -1,6 +1,14 @@
 package qa.hs.framework;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
+import java.net.URLConnection;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +17,9 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
 
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -35,7 +46,9 @@ public class AutomationTest
 	private int attempts = 0;
 	private Config configuration;
 	private Matcher m;    
-	private final int MAX_ATTEMPTS = 5;    
+	private final int MAX_ATTEMPTS = 5;  
+	private final File CHROMEDRIVER = new File("chromedriver.exe");
+	private final File CHROMEDRIVERZIP = new File("chromedriver_win32.zip");
 
 	private Pattern p;
 
@@ -59,7 +72,8 @@ public class AutomationTest
 
 		switch ( browser ) {
 		case CHROME:
-			System.setProperty("webdriver.chrome.driver", "chromedriver.exe");
+			getLatestWindowsChromeDriver();
+			System.setProperty("webdriver.chrome.driver", CHROMEDRIVER.getAbsolutePath() );
 			abilities = DesiredCapabilities.chrome();
 			//ChromeOptions options = new ChromeOptions();
 			//options.addExtensions( new File( "Adblock-Plus_v1.4.1.crx" ) );
@@ -122,6 +136,60 @@ public class AutomationTest
 		actions = new Actions( driver );
 		driver.navigate().to( baseUrl );
 		//TODO augmenter
+	}
+
+	private void getLatestWindowsChromeDriver() {
+		if ( !CHROMEDRIVER.exists() ) {	
+			FileOutputStream fos;
+			InputStream in;
+			try {
+				URL downloadUrl = new URL("http://chromedriver.storage.googleapis.com/index.html?path=2.8/chromedriver_win32.zip");
+				URLConnection conn = downloadUrl.openConnection();
+				in = conn.getInputStream();
+				fos = new FileOutputStream( CHROMEDRIVERZIP.getAbsoluteFile() );
+				byte[] b = new byte[1024];
+				int count;
+				while ( ( count = in.read(b) ) >= 0 ) {
+					fos.write(b, 0, count);
+				}
+				fos.flush();
+				fos.close();
+				in.close();
+			} catch ( FileNotFoundException e ) {
+				e.printStackTrace();
+			} catch ( IOException e ) {
+				e.printStackTrace();
+			} finally {
+				if ( CHROMEDRIVERZIP.exists() ) {
+					System.out.println( "Finished downloading Chrome driver zip archive: " + CHROMEDRIVERZIP.getAbsolutePath() );
+				} else {
+					System.out.println( "Failure to download the Chrome driver zip archive." );
+				}				
+			}
+			if ( CHROMEDRIVERZIP.exists() ) {
+				unzip( CHROMEDRIVERZIP.getAbsolutePath(), CHROMEDRIVER.getAbsolutePath(), "" );
+				//CHROMEDRIVERZIP.delete();
+			} else {
+				throw new IllegalStateException( "Could not unzip Chrome driver.");
+			}
+		} else {
+			System.out.println("Chrome driver was found located at: " + CHROMEDRIVER.getAbsolutePath() );
+		}
+	}
+
+	public static void unzip( String source, String destination, String password ) {
+		//String source = "some/compressed/file.zip";
+		//String destination = "some/destination/folder";
+		//String password = "password";
+		try {
+			ZipFile zipFile = new ZipFile( source );
+			if ( zipFile.isEncrypted() ) {
+				zipFile.setPassword( password );
+			}
+			zipFile.extractAll( destination );
+		} catch ( ZipException e ) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -345,13 +413,13 @@ public class AutomationTest
 	 * @return
 	 */
 	public AutomationTest selectOptionByValue( By by, String value ) {
-	    try {
-	    	Select box = new Select( waitForElement( by ) );
-		    box.selectByValue( value );
-	    } catch ( UnexpectedTagNameException tne ) {
-		    System.out.println("The non-standard select box you passed to this method might not contain 'option' elements.");
-		    tne.printStackTrace();
-	    }
+		try {
+			Select box = new Select( waitForElement( by ) );
+			box.selectByValue( value );
+		} catch ( UnexpectedTagNameException tne ) {
+			System.out.println("The non-standard select box you passed to this method might not contain 'option' elements.");
+			tne.printStackTrace();
+		}
 		return this;
 	}
 
@@ -615,15 +683,15 @@ public class AutomationTest
 					// try for title
 					m = p.matcher(driver.getTitle());
 
-							if (m.find()) {
-								attempts = 0;
-								return switchToWindow(regex);
-							}
+					if (m.find()) {
+						attempts = 0;
+						return switchToWindow(regex);
+					}
 				}
 			} catch ( NoSuchWindowException e) {
 				if ( attempts <= MAX_ATTEMPTS ) {
 					attempts++;
-                    sleep(1000);
+					sleep(1000);
 					return waitForWindow( regex );
 				} else {
 					Assert.fail("Window with url|title: " + regex + " did not appear after " + MAX_ATTEMPTS + " tries. Exiting.");

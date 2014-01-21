@@ -10,3 +10,4 @@ testng-report/*
 target/*
 .idea/*
 *.iml
+/target

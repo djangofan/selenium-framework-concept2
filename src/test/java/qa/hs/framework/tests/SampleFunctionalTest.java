@@ -24,7 +24,7 @@ public class SampleFunctionalTest extends AutomationTest
         .click( props.get( "autocomplete" ) )
         .enterTextIntoField( props.get( "autocomplete" ), "buttons" )
         .sleep( 1000 )
-        .selectItemByText( props.get( "autocomplete" ), props.get( "suggest" ), "large buttons" )
+        .selectFromDropdownByText( props.get( "autocomplete" ), props.get( "suggest" ), "large buttons" )
         .sleep( 1000 )
         .click( props.get( "search" ) )
         .sleep( 1000 );        
@@ -36,7 +36,7 @@ public class SampleFunctionalTest extends AutomationTest
         .click( props.get( "autocomplete" ) )
         .enterTextIntoField( props.get( "autocomplete" ), "zippers" )
         .sleep( 1000 )
-        .selectItemByText( props.get( "autocomplete" ), props.get( "suggest" ), "metal zippers" )
+        .selectFromDropdownByText( props.get( "autocomplete" ), props.get( "suggest" ), "metal zippers" )
         .sleep( 1000 )
         .click( props.get( "search" ) )
         .sleep( 1000 );

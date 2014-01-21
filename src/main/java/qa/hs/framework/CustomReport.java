@@ -89,7 +89,7 @@ public class CustomReport extends CustomReportListener
 				ITestContext testContext = r2.getTestContext();
 				String testName = testContext.getName();
 				m_testIndex = testIndex;
-				resultSummary( suite, testContext.getFailedConfigurations(),	testName, "failed", " (configuration methods)" );
+				resultSummary( suite, testContext.getFailedConfigurations(), testName, "failed", " (configuration methods)" );
 				resultSummary( suite, testContext.getFailedTests(), testName, "failed", "" );
 				resultSummary( suite, testContext.getSkippedConfigurations(), testName, "skipped", " (configuration methods)" );
 				resultSummary( suite, testContext.getSkippedTests(), testName, "skipped", "" );
@@ -100,16 +100,18 @@ public class CustomReport extends CustomReportListener
 		m_out.println("</table>");
 	}
 	
-	/** Creates a section showing known results for each method */
+	/**
+	 *  Creates a section showing known results and console output for each method 
+	 */
 	protected void generateMethodDetailReport( List<ISuite> suites ) 
 	{
 		m_out.println("<br/><b align=\"center\">Method Summary</b>");
 		m_methodIndex = 0;
-		for (ISuite suite : suites) {
+		for ( ISuite suite : suites ) {
 			Map<String, ISuiteResult> r = suite.getResults();
-			for (ISuiteResult r2 : r.values()) {
+			for ( ISuiteResult r2 : r.values() ) {
 				ITestContext testContext = r2.getTestContext();
-				if (r.values().size() > 0) {
+				if ( r.values().size() > 0 ) {
 					m_out.println("<h1>" + testContext.getName() + "</h1>");
 				}
 				resultDetail( testContext.getFailedConfigurations() );
@@ -145,9 +147,10 @@ public class CustomReport extends CustomReportListener
 	}
 	
 	/**
+	 * 
 	 * @param tests
 	 */
-	private void resultSummary( ISuite suite, IResultMap tests, String testname,	String style, String details ) 
+	private void resultSummary( ISuite suite, IResultMap tests, String testname, String style, String details ) 
 	{
 		if ( tests.getAllResults().size() > 0 ) {
 			StringBuffer buff = new StringBuffer();
@@ -219,6 +222,7 @@ public class CustomReport extends CustomReportListener
 	/** Starts and defines columns result summary table */
 	private void startResultSummaryTable( String style ) {
 		tableStart( style, "summary");
+		m_out.println("<b align=\"center\">Result Summary Table</b>");
 		m_out.println("<tr><th>Class</th>"
 				+ "<th>Method</th><th># of<br>Scenarios</th><th>Start</th><th>Time<br>elapsed</th><th>Custom</th></tr>");
 		m_row = 0;
@@ -241,15 +245,18 @@ public class CustomReport extends CustomReportListener
 		return "<b>" + method.getMethodName() + "</b> " + addon;
 	}
 	
-	private void resultDetail(IResultMap tests) {
-		for (ITestResult result : tests.getAllResults()) {
+	/**
+	 * Called by method results detail
+	 * @param tests
+	 */
+	private void resultDetail( IResultMap tests ) {
+		for ( ITestResult result : tests.getAllResults() ) {
 			ITestNGMethod method = result.getMethod();
 			m_methodIndex++;
 			String cname = method.getTestClass().getName();
-			m_out.println("<h2 id=\"m" + m_methodIndex + "\">" + cname + ":"
-					+ method.getMethodName() + "</h2>");
-			Set<ITestResult> resultSet = tests.getResults(method);
-			generateForResult(result, method, resultSet.size());
+			m_out.println("<h2 id=\"m" + m_methodIndex + "\">" + cname + ":" + method.getMethodName() + "</h2>");
+			Set<ITestResult> resultSet = tests.getResults( method );
+			generateForResult( result, method, resultSet.size() );
 			m_out.println("<p class=\"totop\"><a href=\"#summary\">back to summary</a></p>");
 		}
 	}
@@ -260,11 +267,11 @@ public class CustomReport extends CustomReportListener
 	 * @param tests
 	 */
 	@SuppressWarnings("unused")
-	private void getShortException(IResultMap tests) {
-		for (ITestResult result : tests.getAllResults()) {
+	private void getShortException( IResultMap tests ) {
+		for ( ITestResult result : tests.getAllResults() ) {
 			m_methodIndex++;
 			Throwable exception = result.getThrowable();
-			List<String> msgs = Reporter.getOutput(result);
+			List<String> msgs = Reporter.getOutput( result );
 			boolean hasReporterOutput = msgs.size() > 0;
 			boolean hasThrowable = exception != null;
 			if (hasThrowable) {

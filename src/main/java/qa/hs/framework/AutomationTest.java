@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -727,10 +725,23 @@ public class AutomationTest
 		return this;
 	}
 
-	public AutomationTest selectItemByText( By locator, By sublocator, String string ) {
-		List<WebElement> els = waitForElement( locator ).findElements( sublocator );
+	public AutomationTest selectFromDropdownByText( By locator, By sublocator, String string ) {
+		WebElement dropdown = waitForElement( locator );
+		List<WebElement> els = driver.findElements( sublocator ); // probably a set of div elements
+		System.out.println( "Size: " + els.size() );
 		for ( WebElement we : els ) {
-			if ( we.getText().equals( string ) ) we.click();
+			if ( we.getTagName().contains("option") ) {
+				// for static option dropdowns use selectOptionByText method instead
+				// this should work for the Etsy.com or Google.com dropdowns
+				throw new IllegalArgumentException("The method selectFromDropdownByText operates only on non-option div dropdowns.");
+			}
+			System.out.println("Element: " + we.getText() );
+			dropdown.sendKeys( Keys.DOWN);
+			sleep(250);			
+			if ( we.getText().equalsIgnoreCase( string ) ) {
+				we.click();
+				break;
+			}
 		}
 		return this;
 	}

@@ -1,6 +1,7 @@
 <suite>
   <suiteName>Suite 1</suiteName>
-  <sauceURL>http://username-string:access-key-string@ondemand.saucelabs.com:80/wd/hub</sauceURL>
+  <appUrl>http://www.etsy.com/browse/men?ref=hp_so_h</appUrl>
+  <hubUrl></hubUrl>
   <tests>
     <test>
       <enabled type="java.lang.Boolean">true</enabled>

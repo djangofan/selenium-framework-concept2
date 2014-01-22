@@ -36,15 +36,14 @@ import org.testng.annotations.BeforeClass;
 public class AutomationTest 
 {    
 	public Actions actions; 
-	public String baseUrl;
+	public String appUrl;
 	public Browser browser;
 	public String browserVersion;
 	public String osType;
 	public String resolution;
 	public WebDriver driver;
-	public String hub;  
+	public String hubUrl;  
 	public int attempts = 0;
-	public Config configuration;
 	public Matcher m; 
 	public Pattern p;
 	public final int MAX_ATTEMPTS = 5;  
@@ -55,14 +54,14 @@ public class AutomationTest
 	
 	@BeforeClass
 	public void prepareSuite() {
-		baseUrl = "http://www.etsy.com/browse/men?ref=hp_so_h";
+		appUrl = "http://www.etsy.com/browse/men?ref=hp_so_h";
 		osType = "WIN8";
 		browser = Browser.CHROME;
 		browserVersion = "32";    
 		resolution = "1024x768";
-		hub = "";
+		hubUrl = "";
 		if ( browser == null ) throw new IllegalStateException( "Problem getting Browser object from properties.");
-		isLocal = hub.trim().isEmpty() ? true : false; 
+		isLocal = hubUrl.trim().isEmpty() ? true : false; 
 	}
 
 	public AutomationTest()
@@ -102,18 +101,18 @@ public class AutomationTest
 			if ( isLocal ) driver = new SafariDriver( abilities );
 			break;
 		default:
-			System.err.println("Unknown browser: " + configuration.browser());
+			System.err.println("Unknown browser: " + browser );
 			return;
 		}
 
 		//driver.manage().timeouts().pageLoadTimeout( 4, TimeUnit.SECONDS );
 
 		if ( !isLocal ) {
-			System.out.println( "Configured hub url is '" + hub + "'" );
+			System.out.println( "Configured hub url is '" + hubUrl + "'" );
 			try {
-				driver = new RemoteWebDriver( new URL( configuration.hub() ), abilities );
+				driver = new RemoteWebDriver( new URL( hubUrl ), abilities );
 			} catch ( Exception x ) {
-				System.err.println( "Couldn't connect to hub: " + configuration.hub() );
+				System.err.println( "Couldn't connect to hub: " + hubUrl );
 				return;
 			}
 		} else {
@@ -133,7 +132,7 @@ public class AutomationTest
 		}
 
 		actions = new Actions( driver );
-		driver.navigate().to( baseUrl );
+		driver.navigate().to( appUrl );
 		//TODO augmenter
 	}
 
@@ -382,7 +381,7 @@ public class AutomationTest
 		if ( url.contains("://") ) {
 			driver.navigate().to( url );
 		} else if ( url.startsWith("/") ) {
-			driver.navigate().to( baseUrl.concat( url ) );
+			driver.navigate().to( appUrl.concat( url ) );
 		} else {
 			driver.navigate().to( driver.getCurrentUrl().concat( url ) );
 		}        

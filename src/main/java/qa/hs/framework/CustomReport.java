@@ -27,12 +27,10 @@ import org.testng.ITestResult;
 import org.testng.Reporter;
 import org.testng.collections.Lists;
 import org.testng.internal.Utils;
-import org.testng.log4testng.Logger;
 import org.testng.xml.XmlSuite;
 
 public class CustomReport extends CustomReportListener 
 {
-	private static final Logger LOG = Logger.getLogger( CustomReport.class );
 	private static final SimpleDateFormat dateFormatter = new SimpleDateFormat(" MMM d 'at' hh:mm a");
 
 	private String reportFileName = Constants.reportFileName;
@@ -53,15 +51,14 @@ public class CustomReport extends CustomReportListener
 	public void generateReport( List<XmlSuite> xml, List<ISuite> suites, String outdir ) {
 		try {
 			m_out = createWriter( outdir );
+		} catch ( IOException e ) {
+			Reporter.log( "Error relating to report output file.", true );
+			e.printStackTrace();
 		}
-		catch ( IOException e ) {
-			LOG.error("output file", e);
-			return;
-		}
-		startHtml(m_out);
-		generateSuiteSummaryReport(suites);
-		generateMethodSummaryReport(suites);
-		generateMethodDetailReport(suites);
+		startHtml( m_out );
+		generateSuiteSummaryReport( suites );
+		generateMethodSummaryReport( suites );
+		generateMethodDetailReport( suites );
 		endHtml(m_out);
 		m_out.flush();
 		m_out.close();
@@ -105,19 +102,27 @@ public class CustomReport extends CustomReportListener
 	 */
 	protected void generateMethodDetailReport( List<ISuite> suites ) 
 	{
-		m_out.println("<br/><b align=\"center\">Method Summary</b>");
+		Reporter.log("Size of suites: " + suites.size(), true );
+		m_out.println("<br/><b align=\"center\">Method Summaries</b><br/>");
 		m_methodIndex = 0;
 		for ( ISuite suite : suites ) {
+			m_out.println("<h1>" + suite.getName() + "</h1>");
 			Map<String, ISuiteResult> r = suite.getResults();
+			Reporter.log("Size of suite: " + r.size(), true );
 			for ( ISuiteResult r2 : r.values() ) {
 				ITestContext testContext = r2.getTestContext();
 				if ( r.values().size() > 0 ) {
-					m_out.println("<h1>" + testContext.getName() + "</h1>");
+					m_out.println( "<h3>" + testContext.getName() + "</h3>" );
 				}
+				Reporter.log( "Generating method detail for failed configurations...", true );
 				resultDetail( testContext.getFailedConfigurations() );
+				Reporter.log( "Generating method detail for failed tests...", true );
 				resultDetail( testContext.getFailedTests() );
+				Reporter.log( "Generating method detail for skipped configurations...", true );
 				resultDetail( testContext.getSkippedConfigurations() );
+				Reporter.log( "Generating method detail for skipped tests...", true );
 				resultDetail( testContext.getSkippedTests() );
+				Reporter.log( "Generating method detail for passed tests...", true );
 				resultDetail( testContext.getPassedTests() );
 			}
 		}
@@ -246,18 +251,22 @@ public class CustomReport extends CustomReportListener
 	}
 	
 	/**
-	 * Called by method results detail
+	 * Called by method generateMethodDetailReport 
 	 * @param tests
 	 */
 	private void resultDetail( IResultMap tests ) {
-		for ( ITestResult result : tests.getAllResults() ) {
-			ITestNGMethod method = result.getMethod();
-			m_methodIndex++;
-			String cname = method.getTestClass().getName();
-			m_out.println("<h2 id=\"m" + m_methodIndex + "\">" + cname + ":" + method.getMethodName() + "</h2>");
-			Set<ITestResult> resultSet = tests.getResults( method );
-			generateForResult( result, method, resultSet.size() );
-			m_out.println("<p class=\"totop\"><a href=\"#summary\">back to summary</a></p>");
+		if ( tests.size() > 0 ) {
+		        for ( ITestResult result : tests.getAllResults() ) {
+			    ITestNGMethod method = result.getMethod();
+			    m_methodIndex++;
+			    String cname = method.getTestClass().getName();
+			    m_out.println("<h2 id=\"m" + m_methodIndex + "\">" + cname + " : " + method.getMethodName() + "</h2>");
+			    Set<ITestResult> resultSet = tests.getResults( method );
+			    generateForResult( result, method, resultSet.size() );
+			    m_out.println("<p class=\"totop\"><a href=\"#summary\">back to summary</a></p>");
+		    }
+		} else {
+			Reporter.log( "Result map was empty.", true );
 		}
 	}
 	
@@ -310,11 +319,19 @@ public class CustomReport extends CustomReportListener
 		}
 	}
 	
+	/**
+	 * Called by resultDetail method to show detailed information about each test
+	 * including the console log.
+	 * @param ans
+	 * @param method
+	 * @param resultSetSize
+	 */
 	private void generateForResult( ITestResult ans, ITestNGMethod method, int resultSetSize ) {
 		Object[] parameters = ans.getParameters();
 		boolean hasParameters = parameters != null && parameters.length > 0;
+		tableStart("result", null);
 		if ( hasParameters ) {
-			tableStart("result", null);
+			
 			m_out.print("<tr class=\"param\">");
 			for ( int x = 1; x <= parameters.length; x++ ) {
 				m_out.print("<th>Param." + x + "</th>");
@@ -327,24 +344,26 @@ public class CustomReport extends CustomReportListener
 						+ "</td>");
 			}
 			m_out.println("</tr>");
+		} else {
+			m_out.println("<tr><td><i>Test did not have parameters.</i></td></tr> ");
 		}
-		List<String> msgs = Reporter.getOutput(ans);
+		List<String> msgs = Reporter.getOutput( ans );
 		boolean hasReporterOutput = msgs.size() > 0;
 		Throwable exception = ans.getThrowable();
 		boolean hasThrowable = exception != null;
 		if ( hasReporterOutput || hasThrowable ) {
 			if ( hasParameters ) {
-				m_out.print("<tr><td");
+				m_out.print( "<tr><td" );
 				if ( parameters.length > 1 ) {
-					m_out.print(" colspan=\"" + parameters.length + "\"");
+					m_out.print( " colspan=\"" + parameters.length + "\"");
 				}
-				m_out.println(">");
+				m_out.println( ">" );
 			} else {
-				m_out.println("<div>");
+				m_out.println( "<div>" );
 			}
 			if ( hasReporterOutput ) {
 				if ( hasThrowable ) {
-					m_out.println("<h3>Test Messages</h3>");
+					m_out.println( "<h3>Test Messages</h3>" );
 				}
 				for ( String line : msgs ) {
 					m_out.println(line + "<br>");
@@ -353,7 +372,7 @@ public class CustomReport extends CustomReportListener
 			if ( hasThrowable ) {
 				boolean wantsMinimalOutput = ans.getStatus() == ITestResult.SUCCESS;
 				if ( hasReporterOutput ) {
-					m_out.println("<h3>" + (wantsMinimalOutput ? "Expected Exception" : "Failure") + "</h3>");
+					m_out.println( "<h3>" + ( wantsMinimalOutput ? "Expected Exception" : "Failure") + "</h3>" );
 				}
 				generateExceptionReport(exception, method);
 			}
@@ -362,10 +381,10 @@ public class CustomReport extends CustomReportListener
 			} else {
 				m_out.println("</div>");
 			}
+		} else {
+			m_out.println("<tr><td><i>Test did not have report output.</i></td></tr>");
 		}
-		if (hasParameters) {
-			m_out.println("</table>");
-		}
+		m_out.println("</table>");
 	}
 	
 	protected void generateExceptionReport(Throwable exception,	ITestNGMethod method) {
@@ -565,7 +584,7 @@ public class CustomReport extends CustomReportListener
 
 	/** Finishes HTML stream */
 	protected void endHtml( PrintWriter out ) {
-		out.println("<center>Customized TestNG Report</center>");
+		out.println("<center><h4>Customized TestNG Report</h4></center>");
 		out.println("</body></html>");
 	}
 

@@ -1,6 +1,7 @@
 package qa.hs.framework.tests;
 
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import qa.hs.framework.AutomationTest;
@@ -18,6 +19,7 @@ import qa.hs.framework.Config;
 public class SampleFunctionalTest extends AutomationTest 
 {
     
+	@Parameters({ "first-name" })
     @Test
     public void test1() {
     	navigateTo( baseUrl )
@@ -30,6 +32,7 @@ public class SampleFunctionalTest extends AutomationTest
         .sleep( 1000 );        
     }
     
+	@Parameters({ "first-name" })
     @Test
     public void test2() {
     	navigateTo( baseUrl )

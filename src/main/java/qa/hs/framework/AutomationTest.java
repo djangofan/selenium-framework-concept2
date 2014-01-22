@@ -30,7 +30,8 @@ import org.openqa.selenium.safari.SafariDriver;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.UnexpectedTagNameException;
 import org.testng.Assert;
-import org.testng.annotations.AfterTest;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 
 public class AutomationTest 
 {    
@@ -39,33 +40,33 @@ public class AutomationTest
 	public Browser browser;
 	public String browserVersion;
 	public String osType;
+	public String resolution;
 	public WebDriver driver;
 	public String hub;  
-	private int attempts = 0;
-	private Config configuration;
-	private Matcher m;    
-	private final int MAX_ATTEMPTS = 5;  
-	private final File CHROMEDRIVER = new File("chromedriver.exe");
-	private final File CHROMEDRIVERZIP = new File("chromedriver_win32.zip");
-
-	private Pattern p;
-
+	public int attempts = 0;
+	public Config configuration;
+	public Matcher m; 
+	public Pattern p;
+	public final int MAX_ATTEMPTS = 5;  
+	public final File CHROMEDRIVER = new File("chromedriver.exe");
+	public final File CHROMEDRIVERZIP = new File("chromedriver_win32.zip");
 	public Map<String, By> props = new HashMap<String, By>();
-	private String resolution;
-
-	public AutomationTest() 
-	{
-		configuration = getClass().getAnnotation( Config.class );
-		baseUrl = configuration.url();
-		osType = configuration.osType();
-		browser = configuration.browser();
-		browserVersion = configuration.browserVersion();    
-		resolution = configuration.resolution();
-		hub = configuration.hub();
-
+	public boolean isLocal;
+	
+	@BeforeClass
+	public void prepareSuite() {
+		baseUrl = "http://www.etsy.com/browse/men?ref=hp_so_h";
+		osType = "WIN8";
+		browser = Browser.CHROME;
+		browserVersion = "32";    
+		resolution = "1024x768";
+		hub = "";
 		if ( browser == null ) throw new IllegalStateException( "Problem getting Browser object from properties.");
-		boolean isLocal = hub.trim().isEmpty() ? true : false;        
+		isLocal = hub.trim().isEmpty() ? true : false; 
+	}
 
+	public AutomationTest()
+	{
 		DesiredCapabilities abilities = null;
 
 		switch ( browser ) {
@@ -73,17 +74,16 @@ public class AutomationTest
 			getLatestWindowsChromeDriver();
 			System.setProperty("webdriver.chrome.driver", CHROMEDRIVER.getAbsolutePath() );
 			abilities = DesiredCapabilities.chrome();
-			//ChromeOptions options = new ChromeOptions();
-			//options.addExtensions( new File( "Adblock-Plus_v1.4.1.crx" ) );
-			//abilities.setCapability( ChromeOptions.CAPABILITY, options );
 			abilities.setCapability( "platform", osType );
 			abilities.setCapability( "version", browserVersion );
+			abilities.setCapability( "screen-resolution", "1024x768" );
 			if ( isLocal ) driver = new ChromeDriver( abilities );
 			break;
 		case FIREFOX:
 			abilities = DesiredCapabilities.firefox();
 			abilities.setCapability( "platform", osType );
 			abilities.setCapability( "version", browserVersion );
+			abilities.setCapability( "screen-resolution", "1024x768" );
 			if ( isLocal ) driver = new FirefoxDriver( abilities );
 			break;
 		case INTERNET_EXPLORER:
@@ -98,6 +98,7 @@ public class AutomationTest
 			abilities = DesiredCapabilities.safari();
 			abilities.setCapability( "platform", osType );
 			abilities.setCapability( "version", browserVersion );
+			abilities.setCapability( "screen-resolution", "1024x768" );
 			if ( isLocal ) driver = new SafariDriver( abilities );
 			break;
 		default:
@@ -175,10 +176,13 @@ public class AutomationTest
 		}
 	}
 
+	/**
+	 * Unzip a zip file
+	 * @param source
+	 * @param destination
+	 * @param password
+	 */
 	public static void unzip( String source, String destination, String password ) {
-		//String source = "some/compressed/file.zip";
-		//String destination = "some/destination/folder";
-		//String password = "password";
 		try {
 			ZipFile zipFile = new ZipFile( source );
 			if ( zipFile.isEncrypted() ) {
@@ -505,7 +509,7 @@ public class AutomationTest
 
 	/* Validation Functions for Testing */
 
-	@AfterTest
+	@AfterClass
 	public void teardown() {
 		driver.quit();
 	}

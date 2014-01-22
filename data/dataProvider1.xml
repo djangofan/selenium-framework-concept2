@@ -1,0 +1,22 @@
+<suite>
+  <suiteName>Suite 1</suiteName>
+  <sauceURL>http://username-string:access-key-string@ondemand.saucelabs.com:80/wd/hub</sauceURL>
+  <tests>
+    <test>
+      <enabled type="java.lang.Boolean">true</enabled>
+      <testname type="java.lang.String">Test 1</testname>
+      <environment type="java.lang.String">portal1</environment>
+      <testlocale type="java.lang.String">Grid</testlocale>
+      <browser type="java.lang.String">Firefox</browser>
+      <url type="java.lang.String">http://google.com</url>
+    </test>
+    <test>
+      <enabled type="java.lang.Boolean">true</enabled>
+      <testname type="java.lang.String">Test 2</testname>
+      <environment type="java.lang.String">portal2</environment>
+      <testlocale type="java.lang.String">Local</testlocale>
+      <browser type="java.lang.String">Chrome</browser>
+      <url type="java.lang.String">http://yelp.com</url>
+    </test>
+  </tests>
+</suite>

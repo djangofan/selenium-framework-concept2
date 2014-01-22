@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.testng.IInvokedMethod;
+import org.testng.IReporter;
 import org.testng.IResultMap;
 import org.testng.ISuite;
 import org.testng.ISuiteResult;
@@ -29,26 +30,38 @@ import org.testng.collections.Lists;
 import org.testng.internal.Utils;
 import org.testng.xml.XmlSuite;
 
-public class CustomReport extends CustomReportListener 
+public class CustomReport implements IReporter 
 {
 	private static final SimpleDateFormat dateFormatter = new SimpleDateFormat(" MMM d 'at' hh:mm a");
-
-	private String reportFileName = Constants.reportFileName;
-	private String applicationURL = Constants.applicationURL;
-	private String applicationUserID = Constants.applicationUserName;
-	private String applicationPassword = Constants.applicationPassword;
-	private String databaseURL = Constants.databaseURL;
-	private String databaseUserID = Constants.databaseUserName;
-	private String databasePassword = Constants.databasePassword;
-
 	private PrintWriter m_out;
 	private int m_row;
 	private Integer m_testIndex;
 	private int m_methodIndex;
 	private Scanner scanner;
 	
+	/**
+	 * This method is the entry point of this class. TestNG calls this listener method to generate the report.
+	 */
 	@Override
 	public void generateReport( List<XmlSuite> xml, List<ISuite> suites, String outdir ) {
+		System.out.println();
+		//Iterating over each suite included in the test
+		for ( ISuite suite : suites ) {
+			//Following code gets the suite name
+			String suiteName = suite.getName();
+			//Getting the results for the said suite
+			Map<String, ISuiteResult> suiteResults = suite.getResults();
+			for ( ISuiteResult sr : suiteResults.values() ) {
+				ITestContext tc = sr.getTestContext();
+				System.out.println( "Passed tests for suite '" + suiteName + "' is:" + 
+				    tc.getPassedTests().getAllResults().size() );
+				System.out.println( "Failed tests for suite '" + suiteName + "' is:" + 
+				    tc.getFailedTests().getAllResults().size() );
+				System.out.println( "Skipped tests for suite '" + suiteName + "' is:" + 
+				    tc.getSkippedTests().getAllResults().size() );
+			}
+		}
+		System.out.println();
 		try {
 			m_out = createWriter( outdir );
 		} catch ( IOException e ) {
@@ -66,7 +79,7 @@ public class CustomReport extends CustomReportListener
 	
 	protected PrintWriter createWriter( String outdir ) throws IOException {
 		new File( outdir ).mkdirs();
-		return new PrintWriter( new BufferedWriter( new FileWriter( new File( outdir, reportFileName ) ) ) );
+		return new PrintWriter( new BufferedWriter( new FileWriter( new File( outdir, "CustomReport.html" ) ) ) );
 	}
 	
 	/**
@@ -493,15 +506,21 @@ public class CustomReport extends CustomReportListener
 		m_out.println("<b>Execution Parameters</b>");
 		tableStart("testOverview", null);
 		m_out.print("<tr>");
-		tableColumnStart("AppicationURL");
-		tableColumnStart("AppUserName|Password");
-		tableColumnStart("DatabaseURL");
-		tableColumnStart("DBUserName|Password");
+		tableColumnStart("baseUrl");
+		tableColumnStart("hubUrl");
+		tableColumnStart("osType");
+		tableColumnStart("browser");
+		tableColumnStart("browserVersion");
+		tableColumnStart("resolution");
+		tableColumnStart("variable");
 		m_out.println("</tr>");
-		summaryCell(applicationURL, true);
-		summaryCell(applicationUserID + "|" + applicationPassword, true);
-		summaryCell(databaseURL, true);
-		summaryCell(databaseUserID + "|" + databasePassword, true);
+		summaryCell( "baseUrl", true );
+		summaryCell( "hubUrl", true );
+		summaryCell( "osType", true );
+		summaryCell( "browser", true );
+		summaryCell( "browserVersion", true );
+		summaryCell( "resolution", true );
+		summaryCell( "variable", true );
 		m_out.println("</table>");
 		m_out.println("<p></p>");
 	}

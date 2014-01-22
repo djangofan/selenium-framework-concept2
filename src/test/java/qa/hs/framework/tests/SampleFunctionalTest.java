@@ -1,25 +1,13 @@
 package qa.hs.framework.tests;
 
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import qa.hs.framework.AutomationTest;
-import qa.hs.framework.Browser;
-import qa.hs.framework.Config;
 
-@Config(
-    url = "http://www.etsy.com/browse/men?ref=hp_so_h",
-    browser = Browser.CHROME,
-    hub = "",
-    osType = "WIN8",
-    browserVersion = "26",
-    resolution = "1280x1024"
-)
 public class SampleFunctionalTest extends AutomationTest 
 {
     
-	@Parameters({ "first-name" })
     @Test
     public void test1() {
     	navigateTo( baseUrl )
@@ -32,7 +20,6 @@ public class SampleFunctionalTest extends AutomationTest
         .sleep( 1000 );        
     }
     
-	@Parameters({ "first-name" })
     @Test
     public void test2() {
     	navigateTo( baseUrl )

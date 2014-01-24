@@ -2,6 +2,7 @@ package qa.hs.framework.tests;
 
 import java.io.File;
 
+import org.testng.ITestContext;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -54,10 +55,10 @@ public class SampleFunctionalTest extends AutomationTest
     }
     
 	@DataProvider(name = "testdata1")
-	public Object[][] getTestData1() {
+	public Object[][] getTestData1( ITestContext context ) {
 		System.out.println("Calling TestNG data provider method: testdata1");
-
-		return dp.getArgumentsArrays();
+		String testParam = context.getCurrentXmlTest().getParameter("test_param");
+	    return new Object[][] {{ testParam }};
 	}
     
 }

@@ -1,6 +1,5 @@
 package qa.hs.framework;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +14,6 @@ import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.UnexpectedTagNameException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 
 public class AutomationTest 
 {    
@@ -33,21 +31,6 @@ public class AutomationTest
 	public final int MAX_ATTEMPTS = 5;  
 
 	public Map<String, By> props = new HashMap<String, By>();
-	public boolean isLocal;
-	
-	@BeforeClass
-	public void prepareSuite() {
-		appUrl = "http://www.etsy.com/browse/men?ref=hp_so_h";
-		osType = "WIN8";
-		browser = Browser.CHROME;
-		browserVersion = "32";    
-		resolution = "1024x768";
-		hubUrl = "";
-		if ( browser == null ) throw new IllegalStateException( "Problem getting Browser object from properties.");
-		isLocal = hubUrl.trim().isEmpty() ? true : false; 
-	}
-
-
 
 	/**
 	 * Check a checkbox, or radio button.

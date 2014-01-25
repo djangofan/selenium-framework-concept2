@@ -1,9 +1,7 @@
 package qa.hs.framework;
 
-import java.io.File;
-import java.util.HashMap;
+import java.net.URL;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -14,34 +12,16 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.UnexpectedTagNameException;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
 
-public class AutomationTest 
+public class FluentHelper 
 {    
 	public Actions actions; 
-	public String appUrl;
-	public Browser browser;
-	public String browserVersion;
-	public String osType;
-	public String resolution;
-	protected WebDriver driver;
-	public String hubUrl;  
-	public int attempts = 0;
 	public Matcher m; 
 	public Pattern p;
-	public final int MAX_ATTEMPTS = 5;  
-
-	public Map<String, By> props = new HashMap<String, By>();
+	protected static SeHelper se;
 	
-	public static final String directory = "data";
-	public static File dataFile;
-	
-	@BeforeClass 
-	public static void setup() {
-		dataFile = new File( directory );
-	      if ( !new File(directory).exists() ) {
-	          new File(directory).mkdir();
-	      }
+	public FluentHelper( SeHelper se ) {
+		FluentHelper.se = se;
 	}
 
 	/**
@@ -49,7 +29,7 @@ public class AutomationTest
 	 * @param by The element to check.
 	 * @return
 	 */
-	public AutomationTest check( By by ) {
+	public FluentHelper check( By by ) {
 		if ( !isChecked( by ) ) {
 			waitForElement(by).click();
 			Assert.assertTrue( isChecked( by ), "Locator '" + by.toString() + "' did not check!" );
@@ -62,7 +42,7 @@ public class AutomationTest
 	 * @param by The element to click.
 	 * @return
 	 */
-	public AutomationTest click( By by ) {
+	public FluentHelper click( By by ) {
 		waitForElement( by ).click();
 		return this;
 	}
@@ -72,17 +52,17 @@ public class AutomationTest
 	 * @return
 	 */
 	public void closeAllWindows() {
-		Set<String> windows = driver.getWindowHandles();
+		Set<String> windows = se.driver.getWindowHandles();
 		if ( windows.size() > 0 ) {
 			for ( String window : windows ) {
 				try {
-					driver.switchTo().window( window );
-					driver.close();
+					se.driver.switchTo().window( window );
+					se.driver.close();
 				} catch ( NoSuchWindowException e ) {
 					Assert.fail( "Cannot close a window that doesn't exist: " + window );
 				}
 			}
-			driver.quit();
+			se.driver.quit();
 		}
 	}
 
@@ -110,8 +90,8 @@ public class AutomationTest
 	 * Same as <code>driver.navigate().back()</navigate>
 	 * @return
 	 */
-	public AutomationTest goBack() {
-		driver.navigate().back();
+	public FluentHelper goBack() {
+		se.driver.navigate().back();
 		return this;
 	}
 
@@ -120,8 +100,8 @@ public class AutomationTest
 	 * @param by The element to hover over.
 	 * @return
 	 */
-	public AutomationTest hoverOver( By by ) {
-		actions.moveToElement( driver.findElement( by ) ).perform();
+	public FluentHelper hoverOver( By by ) {
+		actions.moveToElement( se.driver.findElement( by ) ).perform();
 		return this;
 	}
 
@@ -142,28 +122,17 @@ public class AutomationTest
 	 * Returns <code>true</code> if the element is present. and <code>false</code> if it's not.
 	 */
 	public boolean isPresent( By by ) {
-		if ( driver.findElements( by ).size() > 0 ) return true;
+		if ( se.driver.findElements( by ).size() > 0 ) return true;
 		return false;
 	}
 
 	/**
 	 * Navigates to an absolute or relative Url.
 	 * @param url Use cases are:<br>
-	 * <blockquote>
-	 * <code>navigateTo("/login") // navigate to a relative url. slash meaning start fresh from the base url.</code><br><br>
-	 * <code>navigateTo("path") // navigate to a relative url. will simply append "path" to the current url.</code><br><br>
-	 * <code>navigateTo("http://google.com") // navigates to an absolute url.</code>
-	 * </blockquote>
-	 * @return
+	 * @return this
 	 */
-	public AutomationTest navigateTo( String url ) {
-		if ( url.contains("://") ) {
-			driver.navigate().to( url );
-		} else if ( url.startsWith("/") ) {
-			driver.navigate().to( appUrl.concat( url ) );
-		} else {
-			driver.navigate().to( driver.getCurrentUrl().concat( url ) );
-		}        
+	public FluentHelper navigateTo( URL url ) {
+		se.driver.navigate().to( url );
 		return this;
 	}
 
@@ -174,7 +143,7 @@ public class AutomationTest
 	 * @see #selectOptionByValue(By, String)
 	 * @return
 	 */
-	public AutomationTest selectOptionByText( By by, String text ) {
+	public FluentHelper selectOptionByText( By by, String text ) {
 		try {
 			Select box = new Select( waitForElement( by ) );
 			box.selectByVisibleText( text );
@@ -192,7 +161,7 @@ public class AutomationTest
 	 * @see #selectOptionByText(By, String)
 	 * @return
 	 */
-	public AutomationTest selectOptionByValue( By by, String value ) {
+	public FluentHelper selectOptionByValue( By by, String value ) {
 		try {
 			Select box = new Select( waitForElement( by ) );
 			box.selectByValue( value );
@@ -209,7 +178,7 @@ public class AutomationTest
 	 * @param text The text that the element will have.
 	 * @return
 	 */
-	public AutomationTest setText( By by, String text ) {
+	public FluentHelper setText( By by, String text ) {
 		System.out.println( by.toString() );
 		WebElement element = waitForElement( by );
 		element.clear();
@@ -222,7 +191,7 @@ public class AutomationTest
 	 * @param regex Regular expression to match
 	 * @return
 	 */
-	public AutomationTest sleep( long milliseconds ) {
+	public FluentHelper sleep( long milliseconds ) {
 		if ( milliseconds > 900000 ) throw new IllegalArgumentException("Method 'sleep()' refuses to wait longer than 15 minutes.");
 		try {
 			Thread.sleep( milliseconds );
@@ -236,8 +205,8 @@ public class AutomationTest
 	 * Switch back to the default content (the first window / frame that you were on before switching)
 	 * @return
 	 */
-	public AutomationTest switchToDefaultContent() {
-		driver.switchTo().defaultContent();
+	public FluentHelper switchToDefaultContent() {
+		se.driver.switchTo().defaultContent();
 		return this;
 	}
 
@@ -246,9 +215,9 @@ public class AutomationTest
 	 * @param idOrName The id or name of the frame.
 	 * @return
 	 */
-	public AutomationTest switchToFrame( String idOrName ) {
+	public FluentHelper switchToFrame( String idOrName ) {
 		try {
-			driver.switchTo().frame( idOrName );
+			se.driver.switchTo().frame( idOrName );
 		} catch ( Exception x ) {
 			Assert.fail("Couldn't switch to frame with id or name [" + idOrName + "]");
 		}
@@ -260,17 +229,17 @@ public class AutomationTest
 	 * @param regex Regex enabled. Url of the window, or title.
 	 * @return
 	 */
-	public AutomationTest switchToWindow( String regex ) {
-		Set<String> windows = driver.getWindowHandles();
+	public FluentHelper switchToWindow( String regex ) {
+		Set<String> windows = se.driver.getWindowHandles();
 		for ( String window : windows ) {
-			driver.switchTo().window(window);
-			System.out.println( String.format("#switchToWindow() : title=%s ; url=%s", driver.getTitle(), driver.getCurrentUrl() ) );
+			se.driver.switchTo().window(window);
+			System.out.println( String.format("#switchToWindow() : title=%s ; url=%s", se.driver.getTitle(), se.driver.getCurrentUrl() ) );
 			p = Pattern.compile( regex );
-			m = p.matcher( driver.getTitle() );
+			m = p.matcher( se.driver.getTitle() );
 			if ( m.find() ) {
 				return this;
 			} else {
-				m = p.matcher(driver.getCurrentUrl());
+				m = p.matcher(se.driver.getCurrentUrl());
 				if (m.find()) return this;
 			}
 		}
@@ -283,7 +252,7 @@ public class AutomationTest
 	 * @param by The element to uncheck.
 	 * @return
 	 */
-	public AutomationTest uncheck( By by ) {
+	public FluentHelper uncheck( By by ) {
 		//TODO make sure its a checkbox element or throw exception
 		if ( isChecked( by ) ) {
 			waitForElement( by ).click();
@@ -305,10 +274,10 @@ public class AutomationTest
 	 * @param regex What the attribute <b>should</b> be.  (this method supports regex)
 	 * @return
 	 */
-	public AutomationTest validateAttribute(By by, String attr, String regex) {
+	public FluentHelper validateAttribute(By by, String attr, String regex) {
 		String actual = null;
 		try {
-			actual = driver.findElement(by).getAttribute(attr);
+			actual = se.driver.findElement(by).getAttribute(attr);
 			if (actual.equals(regex)) return this; // test passes.
 		} catch (NoSuchElementException e) {
 			Assert.fail("No such element [" + by.toString() + "] exists.");
@@ -327,7 +296,7 @@ public class AutomationTest
 	 * @param by
 	 * @return
 	 */
-	public AutomationTest validateChecked( By by ) {
+	public FluentHelper validateChecked( By by ) {
 		Assert.assertTrue( isChecked(by), by.toString() + " is not checked!" );
 		return this;
 	}
@@ -337,7 +306,7 @@ public class AutomationTest
 	 * @param by
 	 * @return
 	 */
-	public AutomationTest validateNotPresent( By by ) {
+	public FluentHelper validateNotPresent( By by ) {
 		Assert.assertFalse( isPresent(by), "Element " + by.toString() + " exists!" );
 		return this;
 	}
@@ -347,7 +316,7 @@ public class AutomationTest
 	 * @param by
 	 * @return
 	 */
-	public AutomationTest validatePresent(By by) {
+	public FluentHelper validatePresent(By by) {
 		waitForElement(by);
 		Assert.assertTrue( isPresent(by), "Element " + by.toString() + " does not exist!" );
 		return this;
@@ -359,7 +328,7 @@ public class AutomationTest
 	 * @param text The text to validate.
 	 * @return
 	 */
-	public AutomationTest validateText( By by, String text ) {
+	public FluentHelper validateText( By by, String text ) {
 		String actual = getText(by);
 		Assert.assertTrue( text.equals(actual), String.format("Text does not match! [expected: %s] [actual: %s]", text, actual) );
 		return this;
@@ -371,7 +340,7 @@ public class AutomationTest
 	 * @param text The text to validate.
 	 * @return
 	 */
-	public AutomationTest validateTextNot( By by, String text ) {
+	public FluentHelper validateTextNot( By by, String text ) {
 		String actual = getText(by);
 		Assert.assertFalse( text.equals(actual), String.format("Text matches! [expected: %s] [actual: %s]", text, actual) );
 		return this;
@@ -384,7 +353,7 @@ public class AutomationTest
 	 * @param by
 	 * @return
 	 */
-	public AutomationTest validateUnchecked( By by ) {
+	public FluentHelper validateUnchecked( By by ) {
 		Assert.assertFalse( isChecked( by ), by.toString() + " is not unchecked!" );
 		return this;
 	}
@@ -394,10 +363,10 @@ public class AutomationTest
 	 * @param regex Regular expression to match
 	 * @return
 	 */
-	public AutomationTest validateUrl( String regex ) {
+	public FluentHelper validateUrl( String regex ) {
 		p = Pattern.compile( regex );
-		m = p.matcher( driver.getCurrentUrl() );
-		Assert.assertTrue( m.find(), "Url does not match regex [" + regex + "] (actual is: \""+driver.getCurrentUrl()+"\")" );
+		m = p.matcher( se.driver.getCurrentUrl() );
+		Assert.assertTrue( m.find(), "Url does not match regex [" + regex + "] (actual is: \"" + se.driver.getCurrentUrl() + "\")" );
 		return this;
 	}
 
@@ -406,73 +375,25 @@ public class AutomationTest
 	 */
 	private WebElement waitForElement( By by ) {
 		int attempts = 0;
-		int size = driver.findElements( by ).size();        
+		int size = se.driver.findElements( by ).size();        
 		while ( size == 0 ) {
-			size = driver.findElements(by).size();
-			if ( attempts == MAX_ATTEMPTS ) Assert.fail( String.format("Could not find %s after %d seconds", by.toString(), MAX_ATTEMPTS ) );
+			size = se.driver.findElements(by).size();
+			if ( attempts > 4 ) Assert.fail( String.format("Could not find %s after %d seconds", by.toString(), 5 ) );
 			attempts++;
 			sleep(1000);
 		}        
 		if (size > 1) System.err.println("WARN: There are more than 1 " + by.toString() + " 's!");        
-		return driver.findElement( by );
+		return se.driver.findElement( by );
 	}
 
-	/**
-	 * Waits for a window to appear, then switches to it.
-	 * @param regex Regex enabled. Url of the window, or title.
-	 * @return
-	 */
-	public AutomationTest waitForWindow( String regex ) {
-		Set<String> windows = driver.getWindowHandles();
-		for ( String window : windows ) {
-			try {
-				driver.switchTo().window(window);
-
-				p = Pattern.compile(regex);
-				m = p.matcher(driver.getCurrentUrl());
-
-				if (m.find()) {
-					attempts = 0;
-					return switchToWindow(regex);
-				}
-				else {
-					// try for title
-					m = p.matcher(driver.getTitle());
-
-					if (m.find()) {
-						attempts = 0;
-						return switchToWindow(regex);
-					}
-				}
-			} catch ( NoSuchWindowException e ) {
-				if ( attempts <= MAX_ATTEMPTS ) {
-					attempts++;
-					sleep(1000);
-					return waitForWindow( regex );
-				} else {
-					Assert.fail( "Window with url|title: " + regex + " did not appear after " + MAX_ATTEMPTS + " tries. Exiting." );
-				}
-			}
-		}
-		// when we reach this point, that means no window exists with that title..
-		if ( attempts == MAX_ATTEMPTS ) {
-			Assert.fail("Window with title: " + regex + " did not appear after 5 tries. Exiting.");
-			return this;
-		} else {
-			System.out.println("#waitForWindow() : Window doesn't exist yet. [" + regex + "] Trying again. " + attempts + "/" + MAX_ATTEMPTS);
-			attempts++;
-			return waitForWindow( regex ); // instead of GOTO
-		}
-	}
-
-	public AutomationTest enterTextIntoField( By locator, String string ) {
+	public FluentHelper enterTextIntoField( By locator, String string ) {
 		WebElement we = waitForElement( locator );
 		if ( !we.getTagName().equals("input") ) throw new IllegalArgumentException("The method enterTextIntoField only takes an 'input' element as an argument.");
 		we.sendKeys( string );
 		return this;
 	}
 
-	public AutomationTest clickElementContainingText( By xpath, String string ) {
+	public FluentHelper clickElementContainingText( By xpath, String string ) {
 		WebElement we = waitForElement( xpath );
 		if ( we.getText().contains( string ) ) {
 			we.click();
@@ -482,9 +403,9 @@ public class AutomationTest
 		return this;
 	}
 
-	public AutomationTest selectFromDropdownByText( By locator, By sublocator, String string ) {
+	public FluentHelper selectFromDropdownByText( By locator, By sublocator, String string ) {
 		WebElement dropdown = waitForElement( locator );
-		List<WebElement> els = driver.findElements( sublocator ); // probably a set of div elements
+		List<WebElement> els = se.driver.findElements( sublocator ); // probably a set of div elements
 		System.out.println( "Size: " + els.size() );
 		for ( WebElement we : els ) {
 			if ( we.getTagName().contains("option") ) {

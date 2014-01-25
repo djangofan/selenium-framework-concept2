@@ -33,7 +33,7 @@ public class SeHelper
         this.browser = moniker;
     }
     
-	public WebDriver loadNewBrowser() {
+	public SeHelper loadNewBrowser() {
 		DesiredCapabilities abilities = null;
 		switch ( browser.getMoniker() ) {
 		case "CHROME":
@@ -80,7 +80,7 @@ public class SeHelper
 		default:
 			throw new IllegalStateException( "Unknown browser: " + browser.getMoniker() );
 		}
-        return driver;
+        return this;
 	}
 
 	/*

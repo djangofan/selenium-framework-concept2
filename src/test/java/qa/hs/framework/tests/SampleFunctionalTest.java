@@ -4,14 +4,15 @@ import java.util.List;
 import java.util.Map;
 
 import org.testng.ITestContext;
-import org.testng.annotations.AfterTest;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.testng.xml.XmlTest;
 
-import qa.hs.framework.AutomationTest;
+import qa.hs.framework.TestBase;
 import qa.hs.framework.Browser;
 import qa.hs.framework.SeHelper;
+import qa.hs.framework.WebDriverHelper;
+import qa.hs.framework.pages.EtsySearchPage;
 
 /* TODO for SauceLabs job update
 
@@ -29,39 +30,42 @@ System.out.println("Job info: " + jobInfo);
 client.jobPassed( jobID );
 */
 
-public class SampleFunctionalTest extends AutomationTest {
+public class SampleFunctionalTest extends TestBase {
+	
+	protected static WebDriverHelper helper;
 	
     @Test(dataProvider = "testdata")
-    public void test1( SeHelper se, XmlTest testArgs, Map<String,String> suiteArgs ) {
-    	String appUrl = suiteArgs.get("appUrl");
-    	driver = se.loadNewBrowser();
-        navigateTo( appUrl )
-        .click( props.get( "autocomplete" ) )
-        .enterTextIntoField( props.get( "autocomplete" ), "buttons" )
-        .sleep( 1000 )
-        .selectFromDropdownByText( props.get( "autocomplete" ), props.get( "suggest" ), "large buttons" )
-        .sleep( 1000 )
-        .click( props.get( "search" ) )
-        .sleep( 1000 );        
+    public void test1( SeHelper se, XmlTest testArgs, Map<String, String> suiteArgs ) {
+    	Map<String, String> params = testArgs.getAllParameters();
+    	helper = new WebDriverHelper(se);
+    	EtsySearchPage ep = new EtsySearchPage( se ); //activates SeHelper object
+    	ep.setSearchString( params.get( "searchString" ) );
+    	ep.selectInEtsyDropdown( params.get( "searchMatch" ) );
+        //navigateTo( appUrl )
+        //.click( props.get( "autocomplete" ) )
+        //.enterTextIntoField( props.get( "autocomplete" ), "buttons" )
+        // .sleep( 1000 )
+        //.selectFromDropdownByText( props.get( "autocomplete" ), props.get( "suggest" ), "large buttons" )
+        //.sleep( 1000 )
+        //.click( props.get( "search" ) )
+        //.sleep( 1000 );        
     }
     
     @Test(dataProvider = "testdata")
-    public void test2( SeHelper se, XmlTest testArgs, Map<String,String> suiteArgs ) {
-    	String appUrl = suiteArgs.get("appUrl");
-    	driver = se.loadNewBrowser();
-        navigateTo( appUrl )
-        .click( props.get( "autocomplete" ) )
-        .enterTextIntoField( props.get( "autocomplete" ), "zippers" )
-        .sleep( 1000 )
-        .selectFromDropdownByText( props.get( "autocomplete" ), props.get( "suggest" ), "metal zippers" )
-        .sleep( 1000 )
-        .click( props.get( "search" ) )
-        .sleep( 1000 );
-    }
-    
-    @AfterTest
-    public void cleanUp() {
-    	closeAllWindows();
+    public void test2( SeHelper se, XmlTest testArgs, Map<String, String> suiteArgs ) {
+    	Map<String, String> params = testArgs.getAllParameters();
+    	helper = new WebDriverHelper(se);
+    	EtsySearchPage ep = new EtsySearchPage( se ); //activates SeHelper object
+    	ep.setSearchString( params.get( "searchString" ) );
+    	ep.selectInEtsyDropdown( params.get( "searchMatch" ) );
+        //navigateTo( appUrl )
+        //.click( props.get( "autocomplete" ) )
+        //.enterTextIntoField( props.get( "autocomplete" ), "zippers" )
+        //.sleep( 1000 )
+        //.selectFromDropdownByText( props.get( "autocomplete" ), props.get( "suggest" ), "metal zippers" )
+        //.sleep( 1000 )
+        //.click( props.get( "search" ) )
+        //.sleep( 1000 );
     }
     
 	@DataProvider(name = "testdata")
@@ -72,7 +76,9 @@ public class SampleFunctionalTest extends AutomationTest {
 		Object[][] testData = new Object[tests.size()][3];
 		int i = 0;
 		for ( XmlTest xt : tests ) {
-			testData[i][0] = new SeHelper( Browser.CHROME );
+			SeHelper se = new SeHelper( Browser.CHROME );
+			se.setAppUrl( suiteParams.get( "appUrl" ) );
+			testData[i][0] = se;
 			testData[i][1] = xt;
 			testData[i][2] = suiteParams;
 		}

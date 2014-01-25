@@ -1,5 +1,6 @@
 package qa.hs.framework;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +14,7 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.UnexpectedTagNameException;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 
 public class AutomationTest 
 {    
@@ -31,6 +32,17 @@ public class AutomationTest
 	public final int MAX_ATTEMPTS = 5;  
 
 	public Map<String, By> props = new HashMap<String, By>();
+	
+	public static final String directory = "data";
+	public static File dataFile;
+	
+	@BeforeClass 
+	public static void setup() {
+		dataFile = new File( directory );
+	      if ( !new File(directory).exists() ) {
+	          new File(directory).mkdir();
+	      }
+	}
 
 	/**
 	 * Check a checkbox, or radio button.
@@ -75,68 +87,6 @@ public class AutomationTest
 	}
 
 	/**
-	 * Closes the current active window.  Calling this method will return the context back to the initial window.
-	 * @return
-	 */
-	public AutomationTest closeWindow() {
-		return closeWindow( null );
-	}
-
-	/**
-	 * Close an open window.
-	 * <br>
-	 * If you have opened only 1 external window, then when you call this method, the context will switch back to 
-	 * the window you were using before.<br>
-	 * <br>
-	 * If you had more than 2 windows displaying, then you will need to call {@link #switchToWindow(String)} to 
-	 * switch back context.
-	 * @param regex The title of the window to close (regex enabled). You may specify <code>null</code> to close 
-	 * the active window. If you specify <code>null</code> then the context will switch back to the initial window.
-	 * @return
-	 */
-	public AutomationTest closeWindow( String regex ) {
-		if ( regex == null ) {
-			driver.close();    		
-			if ( driver.getWindowHandles().size() == 1 ) {
-				driver.switchTo().window( driver.getWindowHandles().iterator().next() );
-			}
-			return this;
-		}
-
-		Set<String> windows = driver.getWindowHandles();
-
-		for ( String window : windows ) {
-			try {
-				driver.switchTo().window(window);
-
-				p = Pattern.compile(regex);
-				m = p.matcher( driver.getTitle() );
-
-				if ( m.find() ) {
-					switchToWindow(regex); // switch to the window, then close it.
-					driver.close();
-
-					if ( windows.size() == 2 ) { // just default back to the first window.
-						driver.switchTo().window( windows.iterator().next() );
-					}
-				} else {
-					m = p.matcher( driver.getCurrentUrl() );
-					if ( m.find() ) {
-						switchToWindow(regex);
-						driver.close();
-
-						if (windows.size() == 2) driver.switchTo().window( windows.iterator().next() );
-					}
-				}
-
-			} catch ( NoSuchWindowException e ) {
-				Assert.fail( "Cannot close a window that doesn't exist. [" + regex + "]" );
-			}
-		}
-		return this;
-	}
-
-	/**
 	 * Get the text of an element.
 	 * <blockquote>This is a consolidated method that works on input's, as select boxes, and fetches the value 
 	 * rather than the innerHTMl.</blockquote>
@@ -147,7 +97,7 @@ public class AutomationTest
 		String text = null;
 		WebElement e = waitForElement(by);
 
-		if (e.getTagName().equalsIgnoreCase("input") || e.getTagName().equalsIgnoreCase("select"))
+		if ( e.getTagName().equalsIgnoreCase("input") || e.getTagName().equalsIgnoreCase("select") )
 			text = e.getAttribute("value");
 		else
 			text = e.getText();
@@ -194,16 +144,6 @@ public class AutomationTest
 	public boolean isPresent( By by ) {
 		if ( driver.findElements( by ).size() > 0 ) return true;
 		return false;
-	}
-
-	/**
-	 * Log something to 'out'
-	 * @param object What to log.
-	 * @return
-	 */
-	public AutomationTest log( Object object ) {
-		System.out.println( object );
-		return this;
 	}
 
 	/**
@@ -306,10 +246,10 @@ public class AutomationTest
 	 * @param idOrName The id or name of the frame.
 	 * @return
 	 */
-	public AutomationTest switchToFrame(String idOrName) {
+	public AutomationTest switchToFrame( String idOrName ) {
 		try {
-			driver.switchTo().frame(idOrName);
-		} catch (Exception x) {
+			driver.switchTo().frame( idOrName );
+		} catch ( Exception x ) {
 			Assert.fail("Couldn't switch to frame with id or name [" + idOrName + "]");
 		}
 		return this;
@@ -320,36 +260,22 @@ public class AutomationTest
 	 * @param regex Regex enabled. Url of the window, or title.
 	 * @return
 	 */
-	public AutomationTest switchToWindow(String regex) {
+	public AutomationTest switchToWindow( String regex ) {
 		Set<String> windows = driver.getWindowHandles();
-
-		for (String window : windows) {
+		for ( String window : windows ) {
 			driver.switchTo().window(window);
-			System.out.println(String.format("#switchToWindow() : title=%s ; url=%s",
-					driver.getTitle(),
-					driver.getCurrentUrl()));
-
-			p = Pattern.compile(regex);
-			m = p.matcher(driver.getTitle());
-
-			if (m.find()) return this;
-			else {
+			System.out.println( String.format("#switchToWindow() : title=%s ; url=%s", driver.getTitle(), driver.getCurrentUrl() ) );
+			p = Pattern.compile( regex );
+			m = p.matcher( driver.getTitle() );
+			if ( m.find() ) {
+				return this;
+			} else {
 				m = p.matcher(driver.getCurrentUrl());
 				if (m.find()) return this;
 			}
 		}
-
-		Assert.fail("Could not switch to window with title / url: " + regex);
+		Assert.fail( "Could not switch to window with title / url: " + regex );
 		return this;
-	}
-
-	/* ************************ */
-
-	/* Validation Functions for Testing */
-
-	@AfterClass
-	public void teardown() {
-		driver.quit();
 	}
 
 	/**
@@ -357,9 +283,10 @@ public class AutomationTest
 	 * @param by The element to uncheck.
 	 * @return
 	 */
-	public AutomationTest uncheck(By by) {
-		if (isChecked(by)) {
-			waitForElement(by).click();
+	public AutomationTest uncheck( By by ) {
+		//TODO make sure its a checkbox element or throw exception
+		if ( isChecked( by ) ) {
+			waitForElement( by ).click();
 			Assert.assertFalse( isChecked(by), by.toString() + " did not uncheck!");
 		}
 		return this;
@@ -388,17 +315,10 @@ public class AutomationTest
 		} catch (Exception x) {
 			Assert.fail("Cannot validate an attribute if an element doesn't have it!");
 		}
-
 		p = Pattern.compile(regex);
 		m = p.matcher(actual);
-
 		Assert.assertTrue( m.find(), String.format("Attribute doesn't match! [Selector: %s] [Attribute: %s] [Desired value: %s] [Actual value: %s]", 
-				by.toString(),
-				attr,
-				regex,
-				actual
-				) );
-
+				by.toString(), attr, regex,	actual ) );
 		return this;
 	}
 
@@ -407,7 +327,7 @@ public class AutomationTest
 	 * @param by
 	 * @return
 	 */
-	public AutomationTest validateChecked(By by) {
+	public AutomationTest validateChecked( By by ) {
 		Assert.assertTrue( isChecked(by), by.toString() + " is not checked!" );
 		return this;
 	}
@@ -417,8 +337,8 @@ public class AutomationTest
 	 * @param by
 	 * @return
 	 */
-	public AutomationTest validateNotPresent(By by) {
-		Assert.assertFalse( isPresent(by), "Element " + by.toString() + " exists!");
+	public AutomationTest validateNotPresent( By by ) {
+		Assert.assertFalse( isPresent(by), "Element " + by.toString() + " exists!" );
 		return this;
 	}
 
@@ -439,9 +359,8 @@ public class AutomationTest
 	 * @param text The text to validate.
 	 * @return
 	 */
-	public AutomationTest validateText(By by, String text) {
+	public AutomationTest validateText( By by, String text ) {
 		String actual = getText(by);
-
 		Assert.assertTrue( text.equals(actual), String.format("Text does not match! [expected: %s] [actual: %s]", text, actual) );
 		return this;
 	}
@@ -452,9 +371,8 @@ public class AutomationTest
 	 * @param text The text to validate.
 	 * @return
 	 */
-	public AutomationTest validateTextNot(By by, String text) {
+	public AutomationTest validateTextNot( By by, String text ) {
 		String actual = getText(by);
-
 		Assert.assertFalse( text.equals(actual), String.format("Text matches! [expected: %s] [actual: %s]", text, actual) );
 		return this;
 	}
@@ -466,8 +384,8 @@ public class AutomationTest
 	 * @param by
 	 * @return
 	 */
-	public AutomationTest validateUnchecked(By by) {
-		Assert.assertFalse( isChecked(by), by.toString() + " is not unchecked!" );
+	public AutomationTest validateUnchecked( By by ) {
+		Assert.assertFalse( isChecked( by ), by.toString() + " is not unchecked!" );
 		return this;
 	}
 
@@ -476,10 +394,9 @@ public class AutomationTest
 	 * @param regex Regular expression to match
 	 * @return
 	 */
-	public AutomationTest validateUrl(String regex) {
-		p = Pattern.compile(regex);
-		m = p.matcher(driver.getCurrentUrl());
-
+	public AutomationTest validateUrl( String regex ) {
+		p = Pattern.compile( regex );
+		m = p.matcher( driver.getCurrentUrl() );
 		Assert.assertTrue( m.find(), "Url does not match regex [" + regex + "] (actual is: \""+driver.getCurrentUrl()+"\")" );
 		return this;
 	}
@@ -487,9 +404,9 @@ public class AutomationTest
 	/**
 	 * Private method that acts as an arbiter of implicit timeouts of sorts.. sort of like a Wait For Ajax method.
 	 */
-	private WebElement waitForElement(By by) {
+	private WebElement waitForElement( By by ) {
 		int attempts = 0;
-		int size = driver.findElements(by).size();        
+		int size = driver.findElements( by ).size();        
 		while ( size == 0 ) {
 			size = driver.findElements(by).size();
 			if ( attempts == MAX_ATTEMPTS ) Assert.fail( String.format("Could not find %s after %d seconds", by.toString(), MAX_ATTEMPTS ) );
@@ -497,7 +414,7 @@ public class AutomationTest
 			sleep(1000);
 		}        
 		if (size > 1) System.err.println("WARN: There are more than 1 " + by.toString() + " 's!");        
-		return driver.findElement(by);
+		return driver.findElement( by );
 	}
 
 	/**
@@ -505,10 +422,9 @@ public class AutomationTest
 	 * @param regex Regex enabled. Url of the window, or title.
 	 * @return
 	 */
-	public AutomationTest waitForWindow(String regex) {
+	public AutomationTest waitForWindow( String regex ) {
 		Set<String> windows = driver.getWindowHandles();
-
-		for (String window : windows) {
+		for ( String window : windows ) {
 			try {
 				driver.switchTo().window(window);
 
@@ -528,25 +444,24 @@ public class AutomationTest
 						return switchToWindow(regex);
 					}
 				}
-			} catch ( NoSuchWindowException e) {
+			} catch ( NoSuchWindowException e ) {
 				if ( attempts <= MAX_ATTEMPTS ) {
 					attempts++;
 					sleep(1000);
 					return waitForWindow( regex );
 				} else {
-					Assert.fail("Window with url|title: " + regex + " did not appear after " + MAX_ATTEMPTS + " tries. Exiting.");
+					Assert.fail( "Window with url|title: " + regex + " did not appear after " + MAX_ATTEMPTS + " tries. Exiting." );
 				}
 			}
 		}
-
 		// when we reach this point, that means no window exists with that title..
-		if (attempts == MAX_ATTEMPTS) {
+		if ( attempts == MAX_ATTEMPTS ) {
 			Assert.fail("Window with title: " + regex + " did not appear after 5 tries. Exiting.");
 			return this;
 		} else {
 			System.out.println("#waitForWindow() : Window doesn't exist yet. [" + regex + "] Trying again. " + attempts + "/" + MAX_ATTEMPTS);
 			attempts++;
-			return waitForWindow(regex);
+			return waitForWindow( regex ); // instead of GOTO
 		}
 	}
 
@@ -587,4 +502,5 @@ public class AutomationTest
 		}
 		return this;
 	}
+	
 }

@@ -1,32 +1,39 @@
 package qa.hs.framework.tests;
 
 import java.io.File;
+import java.util.List;
+import java.util.Map;
 
 import org.testng.ITestContext;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import org.testng.xml.XmlTest;
 
 import qa.hs.framework.AutomationTest;
 import qa.hs.framework.SeHelper;
-import qa.hs.framework.TestArguments;
 
-public class SampleFunctionalTest extends AutomationTest 
-{
-	private static final String directory = "data";
-	private static File dataFile;
-	
-	@BeforeClass 
-	public static void setup() {
-		dataFile = new File( directory );
-	      if ( !new File(directory).exists() ) {
-	          new File(directory).mkdir();
-	      }
-	}
+/* TODO for SauceLabs job update
+
+String jobID = ((RemoteWebDriver) driver).getSessionId().toString();
+String user = "jausten";
+String accessKey = "";
+Map<String, Object> updates = new HashMap<String, Object>();
+updates.put("name", "this job has a name");
+//updates.put( "passed", true );
+updates.put("build", "c234");
+SauceREST client = new SauceREST( user, accessKey );
+client.updateJobInfo( jobID, updates );
+String jobInfo = client.getJobInfo(args[2]);
+System.out.println("Job info: " + jobInfo);
+client.jobPassed( jobID );
+*/
+
+public class SampleFunctionalTest extends AutomationTest {
 	
     @Test(dataProvider = "testdata1")
-    public void test1( SeHelper se, TestArguments testArgs ) {
+    public void test1( SeHelper se, XmlTest testArgs ) {
     	navigateTo( appUrl )
         .click( props.get( "autocomplete" ) )
         .enterTextIntoField( props.get( "autocomplete" ), "buttons" )
@@ -38,7 +45,7 @@ public class SampleFunctionalTest extends AutomationTest
     }
     
     @Test(dataProvider = "testdata1")
-    public void test2( SeHelper se, TestArguments testArgs ) {
+    public void test2( SeHelper se, XmlTest testArgs ) {
     	navigateTo( appUrl )
         .click( props.get( "autocomplete" ) )
         .enterTextIntoField( props.get( "autocomplete" ), "zippers" )
@@ -56,7 +63,9 @@ public class SampleFunctionalTest extends AutomationTest
     
 	@DataProvider(name = "testdata1")
 	public Object[][] getTestData1( ITestContext context ) {
-		System.out.println("Calling TestNG data provider method: testdata1");
+		// returns 2 args per test contained in the testng.xml file: SeHelper and XmlTest
+		List<XmlTest> tests = context.getSuite().getXmlSuite().getTests();
+		Map<String, String> suiteParams = context.getSuite().getXmlSuite().getAllParameters();
 		String testParam = context.getCurrentXmlTest().getParameter("test_param");
 	    return new Object[][] {{ testParam }};
 	}

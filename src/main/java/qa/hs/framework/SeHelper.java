@@ -5,20 +5,17 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Properties;
 
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
-import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.remote.BrowserType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.safari.SafariDriver;
@@ -28,56 +25,59 @@ public class SeHelper
     private WebDriver driver;
 	public final File CHROMEDRIVER = new File("chromedriver.exe");
 	public final File CHROMEDRIVERZIP = new File("chromedriver_win32.zip");
-	boolean isLocal = true;
     private Browser browser;
-	private String osType;
-	private String browserVersion;
-	private String resolution;
-	private String hubUrl;
-	private String appUrl;
+	private URL appUrl;
+	private URL hubUrl;
     
-    public SeHelper( Browser moniker ) {
+	public SeHelper( Browser moniker ) {
         this.browser = moniker;
     }
     
-	public void loadNewBrowser( URL appUrl )
+	public void loadNewBrowser( String appUrl )
 	{
-		this.appUrl = appUrl;
+		this.setAppUrl( appUrl );
 		DesiredCapabilities abilities = null;
 
 		switch ( browser.getMoniker() ) {
 		case "CHROME":
 			getLatestWindowsChromeDriver();
-			System.setProperty("webdriver.chrome.driver", CHROMEDRIVER.getAbsolutePath() );
+			System.setProperty( "webdriver.chrome.driver", CHROMEDRIVER.getAbsolutePath() );
 			abilities = DesiredCapabilities.chrome();
-			abilities.setCapability( "platform", osType );
-			abilities.setCapability( "version", browserVersion );
-			abilities.setCapability( "screen-resolution", "1024x768" );
-			if ( isLocal ) driver = new ChromeDriver( abilities );
+			driver = new ChromeDriver( abilities );
 			break;
 		case "FIREFOX":
 			abilities = DesiredCapabilities.firefox();
-			abilities.setCapability( "platform", osType );
-			abilities.setCapability( "version", browserVersion );
-			abilities.setCapability( "screen-resolution", "1024x768" );
-			if ( isLocal ) driver = new FirefoxDriver( abilities );
+			driver = new FirefoxDriver( abilities );
 			break;
 		case "IE":
 			System.setProperty("webdriver.ie.driver","IEDriverServer.exe");
 			abilities = DesiredCapabilities.internetExplorer();
-			abilities.setCapability( "platform", osType );
-			abilities.setCapability( "version", browserVersion );
-			abilities.setCapability( "screen-resolution", resolution );
-			if ( isLocal ) driver = new InternetExplorerDriver( abilities );
+			driver = new InternetExplorerDriver( abilities );
 			break;
 		case "SAFARI":
 			abilities = DesiredCapabilities.safari();
-			abilities.setCapability( "platform", osType );
-			abilities.setCapability( "version", browserVersion );
-			abilities.setCapability( "screen-resolution", "1024x768" );
-			if ( isLocal ) driver = new SafariDriver( abilities );
+			driver = new SafariDriver( abilities );
 			break;
 		case "PHANTOMJS":
+			// not yet
+			break;
+		case "GRIDCHROME32":
+			if ( hubUrl.toExternalForm().isEmpty() ) {
+				throw new IllegalStateException( "Please set the Selenium Grid hub URL before calling loadNewBrowser()");
+			}
+			abilities = DesiredCapabilities.chrome();
+			abilities.setCapability( "platform", "Windows 8" );
+			abilities.setCapability( "version", "32" );
+			abilities.setCapability( "screen-resolution", "1280x1024" );
+			driver = new RemoteWebDriver( hubUrl, abilities );
+			break;
+		case "GRIDFIREFOX26":
+			// not yet
+			break;
+		case "GRIDIE10":
+			// not yet
+			break;
+		case "GRIDSAFARI7":
 			// not yet
 			break;
 		default:
@@ -89,6 +89,9 @@ public class SeHelper
 		//TODO augmenter
 	}
 
+	/*
+	 * Download latest Chrome WebDriver binary if necessary.
+	 */
 	private void getLatestWindowsChromeDriver() {
 		if ( !CHROMEDRIVER.exists() ) {	
 			FileOutputStream fos = null;
@@ -141,12 +144,12 @@ public class SeHelper
 	}
 
 	/**
-	 * Unzip a zip file
+	 * Unzip a zip file.
 	 * @param source
 	 * @param destination
 	 * @param password
 	 */
-	public static void unzip( String source, String destination, String password ) {
+	private static void unzip( String source, String destination, String password ) {
 		try {
 			ZipFile zipFile = new ZipFile( source );
 			if ( zipFile.isEncrypted() ) {
@@ -154,6 +157,30 @@ public class SeHelper
 			}
 			zipFile.extractAll( destination );
 		} catch ( ZipException e ) {
+			e.printStackTrace();
+		}
+	}
+
+	public URL getAppUrl() {
+		return appUrl;
+	}
+
+	public void setAppUrl( String appUrl ) {
+		try {
+			this.appUrl = new URL( appUrl );
+		} catch ( MalformedURLException e ) {
+			e.printStackTrace();
+		}
+	}
+	
+    public URL getHubUrl() {
+		return hubUrl;
+	}
+
+	public void setHubUrl( String hubUrl ) {
+		try {
+			this.hubUrl = new URL( hubUrl );
+		} catch ( MalformedURLException e ) {
 			e.printStackTrace();
 		}
 	}

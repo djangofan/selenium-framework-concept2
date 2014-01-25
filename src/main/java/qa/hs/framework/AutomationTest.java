@@ -24,7 +24,7 @@ public class AutomationTest
 	public String browserVersion;
 	public String osType;
 	public String resolution;
-	public WebDriver driver;
+	protected WebDriver driver;
 	public String hubUrl;  
 	public int attempts = 0;
 	public Matcher m; 

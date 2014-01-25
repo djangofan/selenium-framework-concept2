@@ -22,7 +22,7 @@ import org.openqa.selenium.safari.SafariDriver;
 
 public class SeHelper 
 {
-    private WebDriver driver;
+    public WebDriver driver;
 	public final File CHROMEDRIVER = new File("chromedriver.exe");
 	public final File CHROMEDRIVERZIP = new File("chromedriver_win32.zip");
     private Browser browser;
@@ -33,11 +33,8 @@ public class SeHelper
         this.browser = moniker;
     }
     
-	public void loadNewBrowser( String appUrl )
-	{
-		this.setAppUrl( appUrl );
+	public WebDriver loadNewBrowser() {
 		DesiredCapabilities abilities = null;
-
 		switch ( browser.getMoniker() ) {
 		case "CHROME":
 			getLatestWindowsChromeDriver();
@@ -81,12 +78,9 @@ public class SeHelper
 			// not yet
 			break;
 		default:
-			System.err.println("Unknown browser: " + browser.getMoniker() );
-			return;
+			throw new IllegalStateException( "Unknown browser: " + browser.getMoniker() );
 		}
-
-		driver.navigate().to( appUrl );
-		//TODO augmenter
+        return driver;
 	}
 
 	/*

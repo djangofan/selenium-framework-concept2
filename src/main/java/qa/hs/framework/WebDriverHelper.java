@@ -10,17 +10,21 @@ import org.testng.Reporter;
 
 public class WebDriverHelper {
 
-	protected static WebDriver wd;
+	private WebDriver wd;
 
 	public WebDriverHelper( WebDriver driver ) {
-		WebDriverHelper.wd = driver;
+		this.wd = driver;
 	}
 
 	public void clearAndType( By field, String text ) {
-		WebElement el = wd.findElement( field );
-		el.submit();
-		el.clear(); 
-		el.sendKeys( text ); 
+		if ( elementExists( field ) ) {
+		    WebElement el = wd.findElement( field );
+		    el.submit();
+		    el.clear(); 
+		    el.sendKeys( text ); 
+		} else {
+			Reporter.log("Element did not exist to type text into: " + text );
+		}
 	}
 
 	public WebElement getElementByLocator( final By locator ) {

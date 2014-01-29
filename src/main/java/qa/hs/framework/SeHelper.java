@@ -97,7 +97,7 @@ public class SeHelper
 		if ( !(driver == null) ) {
 			helper = new WebDriverHelper( driver );
 		} else {
-			throw new NullPointerException("Driver did not load.");
+			throw new NullPointerException("Driver did not load or is null.");
 		}
         return this;
 	}	

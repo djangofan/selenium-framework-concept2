@@ -8,8 +8,6 @@ import org.openqa.selenium.ElementNotVisibleException;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.LoadableComponent;
 import org.testng.Reporter;
 
@@ -24,7 +22,7 @@ public class EtsySearchPage extends LoadableComponent<EtsySearchPage> {
 
 	public EtsySearchPage( SeHelper se ) {
 		this.se = se;
-		this.get();
+		this.get(); // should start the page load loop
 		Reporter.log( "EtsySearchPage constructor loaded...", true );
 	}
 	
@@ -40,13 +38,9 @@ public class EtsySearchPage extends LoadableComponent<EtsySearchPage> {
 	protected void isLoaded() throws Error {    	
 		Reporter.log( "EtsySearchPage.isLoaded()...", true );
 		boolean loaded = false;
-			try {
-				if ( se.helper.elementExists( searchField ) ) {
-					loaded = true;
-				}
-			} catch ( ElementNotVisibleException e ) {
-				Reporter.log( "Element may not be displayed yet.", true );
-			}
+		if ( se.driver.getTitle().contains( "Etsy" ) ) {
+			loaded = true;
+		}
 		Assert.assertTrue( "Etsy search field is not yet displayed.", loaded );
 	}
 
@@ -59,11 +53,17 @@ public class EtsySearchPage extends LoadableComponent<EtsySearchPage> {
 	@Override
 	protected void load() {
 		Reporter.log("EtsySearchPage.load()...", true );
-		se.driver.navigate().to( se.getAppUrl() );
-		se.helper.waitTimer( 1, 1000 );
+		if ( se.driver.getTitle().contains( "Etsy" ) ) {
+			se.helper.waitTimer( 1, 1000 );		    
+		} else {
+			se.driver.navigate().to( se.getAppUrl() );
+			se.helper.waitTimer( 1, 1000 );	
+		}
 	}
 
-	@SuppressWarnings("null")
+	/**
+	 * Method: clickSearchButton
+	 */
 	public void clickSearchButton() {
 		WebElement clicker = se.helper.getElementByLocator( searchButton );
 		    try {

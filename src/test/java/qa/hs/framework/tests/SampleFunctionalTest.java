@@ -9,35 +9,14 @@ import org.testng.annotations.Test;
 import org.testng.xml.XmlTest;
 
 import qa.hs.framework.TestBase;
-import qa.hs.framework.Browser;
 import qa.hs.framework.SeHelper;
-import qa.hs.framework.WebDriverHelper;
 import qa.hs.framework.pages.EtsySearchPage;
-
-/* TODO for SauceLabs job update
-
-String jobID = ((RemoteWebDriver) driver).getSessionId().toString();
-String user = "jausten";
-String accessKey = "";
-Map<String, Object> updates = new HashMap<String, Object>();
-updates.put("name", "this job has a name");
-//updates.put( "passed", true );
-updates.put("build", "c234");
-SauceREST client = new SauceREST( user, accessKey );
-client.updateJobInfo( jobID, updates );
-String jobInfo = client.getJobInfo(args[2]);
-System.out.println("Job info: " + jobInfo);
-client.jobPassed( jobID );
-*/
 
 public class SampleFunctionalTest extends TestBase {
 	
-	protected static WebDriverHelper helper;
-	
     @Test(dataProvider = "testdata")
-    public void test1( SeHelper se, XmlTest testArgs, Map<String, String> suiteArgs ) {
+    public void test1( SeHelper se, XmlTest testArgs ) {
     	Map<String, String> params = testArgs.getAllParameters();
-    	helper = new WebDriverHelper(se);
     	EtsySearchPage ep = new EtsySearchPage( se ); //activates SeHelper object
     	ep.setSearchString( params.get( "searchString" ) );
     	ep.selectInEtsyDropdown( params.get( "searchMatch" ) );
@@ -52,9 +31,8 @@ public class SampleFunctionalTest extends TestBase {
     }
     
     @Test(dataProvider = "testdata")
-    public void test2( SeHelper se, XmlTest testArgs, Map<String, String> suiteArgs ) {
+    public void test2( SeHelper se, XmlTest testArgs ) {
     	Map<String, String> params = testArgs.getAllParameters();
-    	helper = new WebDriverHelper(se);
     	EtsySearchPage ep = new EtsySearchPage( se ); //activates SeHelper object
     	ep.setSearchString( params.get( "searchString" ) );
     	ep.selectInEtsyDropdown( params.get( "searchMatch" ) );
@@ -73,14 +51,20 @@ public class SampleFunctionalTest extends TestBase {
 		// returns 2 args per test contained in the testng.xml file: a configured SeHelper object and a XmlTest object
 		List<XmlTest> tests = context.getSuite().getXmlSuite().getTests();
 		Map<String, String> suiteParams = context.getSuite().getXmlSuite().getAllParameters();
-		Object[][] testData = new Object[tests.size()][3];
+		Object[][] testData = new Object[tests.size()][2];
 		int i = 0;
-		for ( XmlTest xt : tests ) {
-			SeHelper se = new SeHelper( Browser.CHROME );
+		for ( XmlTest thisTest : tests ) {
+			SeHelper se = new SeHelper();
 			se.setAppUrl( suiteParams.get( "appUrl" ) );
+			se.setHubUrl( suiteParams.get( "hubUrl" ) );
+			se.setSauceUsername( suiteParams.get( "sauceUsername" ) );
+			se.setSauceKey( suiteParams.get( "sauceKey" ) );
+			se.setBrowser( suiteParams.get( "browser" ) );
+			se.loadNewBrowser();
 			testData[i][0] = se;
-			testData[i][1] = xt;
-			testData[i][2] = suiteParams;
+			testData[i][1] = thisTest;
+			i++;
+			System.out.println("Added data: " + i );
 		}
 	    return testData;
 	}

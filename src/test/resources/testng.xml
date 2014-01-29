@@ -1,21 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
-<suite name="Custom Report Suite" parallel="classes" thread-count="1">
-	<listeners>
+<suite name="Custom Report Suite" verbose="10">
+	<!-- <listeners>
 		<listener class-name="qa.hs.framework.CustomReport" />
-	</listeners>
+	</listeners> -->
+	<parameter name="browser" value="chrome" />
 	<parameter name="hubUrl" value="" />
-	<parameter name="appUrl" value="http://www.etsy.com/browse/vintage-category?ref=fp_ln_new_vintage-category" />
+	<parameter name="appUrl" value="http://www.etsy.com" />
 	<parameter name="sauceUsername" value="" />
 	<parameter name="sauceKey" value="" />
 	<test name="Etsy Test1">
 		<parameter name="searchString" value="rings" />
 		<parameter name="searchMatch" value="wedding" />
-		<class name="qa.hs.framework.tests.SampleFunctionalTest" />
-	</test>
-	<test name="Etsy Test2">
-		<parameter name="searchString" value="necklaces" />
-		<parameter name="searchMatch" value="personalized" />
-		<class name="qa.hs.framework.tests.SampleFunctionalTest" />
+		<classes>
+		  <class name="qa.hs.framework.tests.SampleFunctionalTest" />
+		</classes>
 	</test>
 </suite>

@@ -4,24 +4,26 @@ import java.text.DecimalFormat;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.StaleElementReferenceException;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.testng.Reporter;
 
 public class WebDriverHelper {
 
-	protected static SeHelper se;
+	protected static WebDriver wd;
 
-	public WebDriverHelper( SeHelper se ) {
-		WebDriverHelper.se = se;
+	public WebDriverHelper( WebDriver driver ) {
+		WebDriverHelper.wd = driver;
 	}
 
-	public static void clearAndType( WebElement field, String text ) {
-		field.submit();
-		field.clear(); 
-		field.sendKeys( text ); 
+	public void clearAndType( By field, String text ) {
+		WebElement el = wd.findElement( field );
+		el.submit();
+		el.clear(); 
+		el.sendKeys( text ); 
 	}
 
-	public static WebElement getElementByLocator( final By locator ) {
+	public WebElement getElementByLocator( final By locator ) {
 		Reporter.log( "Get element by locator: " + locator.toString(), true );                
 		final long startTime = System.currentTimeMillis();
 		WebElement we = null;
@@ -29,7 +31,7 @@ public class WebDriverHelper {
 		while ( (System.currentTimeMillis() - startTime) < 91000 ) {
 			Reporter.log( "Searching for element. Try number " + (tries++), true );  
 			try {
-				we = se.driver.findElement( locator );
+				we = wd.findElement( locator );
 				waitTimer( 5, 1000 );
 				break;
 			} catch ( StaleElementReferenceException e ) {                                                
@@ -42,7 +44,7 @@ public class WebDriverHelper {
 		return we;
 	}
 
-	public static void waitTimer( int units, int mills ) {
+	public void waitTimer( int units, int mills ) {
 		DecimalFormat df = new DecimalFormat("###.##");
 		double totalSeconds = ((double)units*mills)/1000;
 		Reporter.log( "Explicit pause for " + df.format(totalSeconds) + " seconds divided by " + units + " units of time: ", true );
@@ -57,6 +59,11 @@ public class WebDriverHelper {
 		} catch ( InterruptedException ex ) {
 			ex.printStackTrace();
 		}        
+	}
+
+	public boolean elementExists( By locator ) {
+		waitTimer( 1, 500 );
+		return wd.findElements( locator ).size() != 0;
 	}
 
 }

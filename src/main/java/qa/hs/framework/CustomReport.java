@@ -26,6 +26,7 @@ import org.testng.ITestContext;
 import org.testng.ITestNGMethod;
 import org.testng.ITestResult;
 import org.testng.Reporter;
+import org.testng.TestNGException;
 import org.testng.collections.Lists;
 import org.testng.internal.Utils;
 import org.testng.xml.XmlSuite;
@@ -143,7 +144,8 @@ public class CustomReport implements IReporter
 	
 	public String convertLongToCanonicalLengthOfTime( long timeLength )
 	{		
-		if( timeLength <= 0 || timeLength >= 86400000 ) {
+		if ( timeLength <= 0 || timeLength >= 86400000 ) {
+			System.out.println("Time passed in is: " + timeLength );
             throw new IllegalArgumentException("Duration must be greater than zero or less than 24 hours!");
         }
 
@@ -454,13 +456,12 @@ public class CustomReport implements IReporter
 		int qty_pass_s = 0;
 		int qty_skip = 0;
 		int qty_fail = 0;
-		long time_start = Long.MAX_VALUE;
-		long time_end = Long.MIN_VALUE;
+		long testStart;
+		long testEnd;
 		m_testIndex = 1;
-		for (ISuite suite : suites) {
-			if ( suites.size() > 1 ) {
-				titleRow( suite.getName(), 8 );
-			}
+        if ( suites.size() == 0 ) throw new TestNGException( "You need to have at lease one suite to generate a report.");
+        for ( ISuite suite : suites ) {
+			titleRow( suite.getName(), 8 );
 			Map<String, ISuiteResult> tests = suite.getResults();
 			for ( ISuiteResult r : tests.values() ) {
 				qty_tests += 1;
@@ -478,28 +479,26 @@ public class CustomReport implements IReporter
 				q = getMethodSet( overview.getFailedTests(), suite ).size();
 				qty_fail += q;
 				summaryCell(q, 0);
-				time_start = Math.min( overview.getStartDate().getTime(), time_start );
-				time_end = Math.max( overview.getEndDate().getTime(), time_end );
-				String passedTime = convertLongToCanonicalLengthOfTime( overview.getEndDate().getTime() - overview.getStartDate().getTime() );
+				testStart = overview.getStartDate().getTime();
+				testEnd = overview.getEndDate().getTime();
+				String passedTime = convertLongToCanonicalLengthOfTime( testEnd - testStart );
 				summaryCell( passedTime, true );
 				summaryCell( overview.getIncludedGroups() );
 				summaryCell( overview.getExcludedGroups() );
 				m_out.println("</tr>");
 				m_testIndex++;
 			}
-		}
-		if ( qty_tests > 1 ) {
 			m_out.println("<tr class=\"total\"><td>Total</td>");
 			summaryCell( qty_pass_m, Integer.MAX_VALUE );
 			summaryCell( qty_pass_s, Integer.MAX_VALUE );
 			summaryCell( qty_skip, 0 );
 			summaryCell( qty_fail, 0 );
-			String passedTime = convertLongToCanonicalLengthOfTime( time_end - time_start );
-			summaryCell( passedTime, true);
+			//String passedTime = convertLongToCanonicalLengthOfTime( testEnd - testStart );
+			summaryCell( "9999", true); //TODO fix this
 			m_out.println("<td colspan=\"2\">&nbsp;</td></tr>");
+		    m_out.println("</table>");
+		    m_out.println("<p></p>");
 		}
-		m_out.println("</table>");
-		m_out.println("<p></p>");
 	}
 	
 	private void printExecutionParameters() {

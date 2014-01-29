@@ -8,7 +8,7 @@
   
   <properties>
     <selenium.version>2.39.0</selenium.version>
-    <maven.surefire.version>2.16</maven.surefire.version>
+    <maven.surefire.plugin.version>2.16</maven.surefire.plugin.version>
     <testng.version>6.8.7</testng.version>
   </properties>
   
@@ -41,7 +41,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>${maven.surefire.version}</version>
+        <version>${maven.surefire.plugin.version}</version>
         <configuration>
           <showSuccess>true</showSuccess>
           <suiteXmlFiles>
@@ -50,8 +50,7 @@
           </suiteXmlFiles>
           <configuration>
             <systemPropertyVariables>
-              <build-name>${surefire.build-name}</build-name>
-              <testenv>${surefire.testng.testenv}</testenv>
+              <build-name>${surefire.testng.build}</build-name>
             </systemPropertyVariables>
             <groups>${surefire.testng.groups}</groups>
             <testFailureIgnore>true</testFailureIgnore>

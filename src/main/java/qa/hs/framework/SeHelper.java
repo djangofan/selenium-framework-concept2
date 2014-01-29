@@ -23,42 +23,56 @@ import org.openqa.selenium.safari.SafariDriver;
 public class SeHelper 
 {
     public WebDriver driver;
+    public WebDriverHelper helper;
 	public final File CHROMEDRIVER = new File("chromedriver.exe");
 	public final File CHROMEDRIVERZIP = new File("chromedriver_win32.zip");
-    private Browser browser;
+    private String browser;
 	private URL appUrl;
 	private URL hubUrl;
+	private String sauceUsername;
+	private String sauceKey;	
     
-	public SeHelper( Browser moniker ) {
-        this.browser = moniker;
+	public SeHelper() {
+        System.out.println("Created new SeHelper object.");
     }
+	
+	public void checkConfig() {
+		if ( browser == null ) {
+			throw new NullPointerException("The browser type was not yet set in the SeHelper object.");
+		}
+		if ( appUrl == null ) {
+			throw new NullPointerException("The app url was not yet set in the SeHelper object.");
+		}
+	}
     
 	public SeHelper loadNewBrowser() {
+        checkConfig();
+		System.out.println("Loading WebDriver instance...");
 		DesiredCapabilities abilities = null;
-		switch ( browser.getMoniker() ) {
-		case "CHROME":
+		switch ( browser ) {
+		case "chrome":
 			getLatestWindowsChromeDriver();
 			System.setProperty( "webdriver.chrome.driver", CHROMEDRIVER.getAbsolutePath() );
 			abilities = DesiredCapabilities.chrome();
 			driver = new ChromeDriver( abilities );
 			break;
-		case "FIREFOX":
+		case "firefox":
 			abilities = DesiredCapabilities.firefox();
 			driver = new FirefoxDriver( abilities );
 			break;
-		case "IE":
+		case "ie":
 			System.setProperty("webdriver.ie.driver","IEDriverServer.exe");
 			abilities = DesiredCapabilities.internetExplorer();
 			driver = new InternetExplorerDriver( abilities );
 			break;
-		case "SAFARI":
+		case "safari":
 			abilities = DesiredCapabilities.safari();
 			driver = new SafariDriver( abilities );
 			break;
-		case "PHANTOMJS":
+		case "phantomjs":
 			// not yet
 			break;
-		case "GRIDCHROME32":
+		case "gridchrome32":
 			if ( hubUrl.toExternalForm().isEmpty() ) {
 				throw new IllegalStateException( "Please set the Selenium Grid hub URL before calling loadNewBrowser()");
 			}
@@ -68,19 +82,50 @@ public class SeHelper
 			abilities.setCapability( "screen-resolution", "1280x1024" );
 			driver = new RemoteWebDriver( hubUrl, abilities );
 			break;
-		case "GRIDFIREFOX26":
+		case "gridfirefox26":
 			// not yet
 			break;
-		case "GRIDIE10":
+		case "gridie10":
 			// not yet
 			break;
-		case "GRIDSAFARI7":
+		case "gridsafari7":
 			// not yet
 			break;
 		default:
-			throw new IllegalStateException( "Unknown browser: " + browser.getMoniker() );
+			throw new IllegalStateException( "Unknown browser: " + browser );
+		}
+		if ( !(driver == null) ) {
+			helper = new WebDriverHelper( driver );
+		} else {
+			throw new NullPointerException("Driver did not load.");
 		}
         return this;
+	}	
+
+	public URL getAppUrl() {
+		return appUrl;
+	}
+
+	public void setAppUrl( String appUrl ) {
+		try {
+			this.appUrl = new URL( appUrl );
+		} catch ( MalformedURLException e ) {
+			e.printStackTrace();
+		}
+	}
+	
+    public URL getHubUrl() {
+		return hubUrl;
+	}
+
+	public void setHubUrl( String hubUrl ) {
+		if ( !hubUrl.isEmpty() ) {
+		    try {
+			    this.hubUrl = new URL( hubUrl );
+		    } catch ( MalformedURLException e ) {
+			    e.printStackTrace();
+		    }
+		}
 	}
 
 	/*
@@ -155,28 +200,24 @@ public class SeHelper
 		}
 	}
 
-	public URL getAppUrl() {
-		return appUrl;
+	public String getSauceUsername() {
+		return sauceUsername;
 	}
 
-	public void setAppUrl( String appUrl ) {
-		try {
-			this.appUrl = new URL( appUrl );
-		} catch ( MalformedURLException e ) {
-			e.printStackTrace();
-		}
-	}
-	
-    public URL getHubUrl() {
-		return hubUrl;
+	public void setSauceUsername(String sauceUsername) {
+		this.sauceUsername = sauceUsername;
 	}
 
-	public void setHubUrl( String hubUrl ) {
-		try {
-			this.hubUrl = new URL( hubUrl );
-		} catch ( MalformedURLException e ) {
-			e.printStackTrace();
-		}
+	public String getSauceKey() {
+		return sauceKey;
+	}
+
+	public void setSauceKey(String sauceKey) {
+		this.sauceKey = sauceKey;
+	}
+
+	public void setBrowser( String bro ) {
+		browser = bro;		
 	}
     
 }

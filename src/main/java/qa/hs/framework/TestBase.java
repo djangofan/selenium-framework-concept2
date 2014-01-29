@@ -2,8 +2,8 @@ package qa.hs.framework;
 
 import java.io.File;
 
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeSuite;
 
 public abstract class TestBase {
 
@@ -11,14 +11,14 @@ public abstract class TestBase {
 	public static File dataFile;
 	
 	public String appUrl;
-	public Browser browser;
+	public String browser;
 	public String browserVersion;
 	public String osType;
 	public String resolution;
 	protected SeHelper se;
 	public String hubUrl;
 	
-	@BeforeClass 
+	@BeforeSuite 
 	public static void setup() {
 		dataFile = new File( directory );
 	      if ( !new File(directory).exists() ) {
@@ -26,9 +26,23 @@ public abstract class TestBase {
 	      }
 	}
 	
-	@AfterSuite
-	public static void generateCustomReport() {
-		//TODO
+	@AfterTest
+	public void afterTest() {
+		/* TODO for SauceLabs job update
+
+		String jobID = ((RemoteWebDriver) driver).getSessionId().toString();
+		String user = "jausten";
+		String accessKey = "";
+		Map<String, Object> updates = new HashMap<String, Object>();
+		updates.put("name", "this job has a name");
+		//updates.put( "passed", true );
+		updates.put("build", "c234");
+		SauceREST client = new SauceREST( user, accessKey );
+		client.updateJobInfo( jobID, updates );
+		String jobInfo = client.getJobInfo(args[2]);
+		System.out.println("Job info: " + jobInfo);
+		client.jobPassed( jobID );
+		*/
 	}
 	
 }

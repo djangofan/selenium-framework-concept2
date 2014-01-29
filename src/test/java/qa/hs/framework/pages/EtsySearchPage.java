@@ -14,22 +14,17 @@ import org.openqa.selenium.support.ui.LoadableComponent;
 import org.testng.Reporter;
 
 import qa.hs.framework.SeHelper;
-import static qa.hs.framework.WebDriverHelper.*;
 
 public class EtsySearchPage extends LoadableComponent<EtsySearchPage> {
-
-	public static final String searchFieldName = "search_query";
-	public static final String searchButtonName = "search_submit";
-	public static final String suggestIons = "div.nav-search-text div#search-suggestions ul li";
+	
+	public static final By lazyLoadedSuggestionList = By.cssSelector("div.nav-search-text div#search-suggestions ul li");
+	public static final By searchField = By.xpath(".//*[@id='search-query']");
+	public static final By searchButton = By.xpath(".//*[@id='search_submit']");
 	private SeHelper se;
-
-	@FindBy(name = searchFieldName ) public WebElement searchField;
-	@FindBy(name = searchButtonName ) public WebElement searchButton;
 
 	public EtsySearchPage( SeHelper se ) {
 		this.se = se;
-		se.loadNewBrowser();
-		this.get(); // SlowLoadableComponent.get()
+		this.get();
 		Reporter.log( "EtsySearchPage constructor loaded...", true );
 	}
 	
@@ -45,15 +40,13 @@ public class EtsySearchPage extends LoadableComponent<EtsySearchPage> {
 	protected void isLoaded() throws Error {    	
 		Reporter.log( "EtsySearchPage.isLoaded()...", true );
 		boolean loaded = false;
-		if ( !(searchField == null ) ) {
 			try {
-				if ( searchField.isDisplayed() ) {
+				if ( se.helper.elementExists( searchField ) ) {
 					loaded = true;
 				}
 			} catch ( ElementNotVisibleException e ) {
 				Reporter.log( "Element may not be displayed yet.", true );
 			}
-		}
 		Assert.assertTrue( "Etsy search field is not yet displayed.", loaded );
 	}
 
@@ -66,16 +59,15 @@ public class EtsySearchPage extends LoadableComponent<EtsySearchPage> {
 	@Override
 	protected void load() {
 		Reporter.log("EtsySearchPage.load()...", true );
-		PageFactory.initElements( se.driver, this ); // initialize WebElements on page
-		//sleep( 1000 );
+		se.driver.navigate().to( se.getAppUrl() );
+		se.helper.waitTimer( 1, 1000 );
 	}
 
+	@SuppressWarnings("null")
 	public void clickSearchButton() {
-		if ( searchButton == null ) {
-			searchButton = getElementByLocator( By.id( searchButtonName ) );
-		} else {
+		WebElement clicker = se.helper.getElementByLocator( searchButton );
 		    try {
-				searchButton.click();
+				clicker.click();
 			} catch ( ElementNotVisibleException e ) {
 				Reporter.log( "Element not visible exception clicking search button.\n" + e.getMessage() );
 				e.printStackTrace();
@@ -83,7 +75,6 @@ public class EtsySearchPage extends LoadableComponent<EtsySearchPage> {
 				Reporter.log( "Exception clicking search button.\n" + e.getMessage() );
 				e.printStackTrace();
 			}
-		}
 	}
 
 	/**
@@ -92,7 +83,7 @@ public class EtsySearchPage extends LoadableComponent<EtsySearchPage> {
 	 * @return	void
 	 */
 	public void setSearchString( String sstr ) {
-		clearAndType( searchField, sstr );
+		se.helper.clearAndType( searchField, sstr );
 	}
 	
 	/**
@@ -104,9 +95,9 @@ public class EtsySearchPage extends LoadableComponent<EtsySearchPage> {
 		Reporter.log("Click Etsy logo...");
 		WebElement logo = null;
 		By locator = By.cssSelector( "h1#etsy a" );
-		logo = getElementByLocator( locator );
+		logo = se.helper.getElementByLocator( locator );
 		logo.click();
-		waitTimer(2, 1000);
+		se.helper.waitTimer(2, 1000);
 	}
 
 	/**
@@ -119,11 +110,12 @@ public class EtsySearchPage extends LoadableComponent<EtsySearchPage> {
 	 */
 	public void selectInEtsyDropdown( String match ) {
 		Reporter.log("Selecting \"" + match + "\" from Etsy dynamic dropdown.");
-		List<WebElement> allSuggestions = se.driver.findElements( By.cssSelector( suggestIons ) );  
+		List<WebElement> allSuggestions = se.driver.findElements( lazyLoadedSuggestionList );  
+		WebElement searcher = se.driver.findElement( searchField );
 		try {
 			for ( WebElement suggestion : allSuggestions ) {
 				Thread.sleep(600);
-				searchField.sendKeys( Keys.ARROW_DOWN); // show effect of selecting item with keyboard arrow down
+				searcher.sendKeys( Keys.ARROW_DOWN); // show effect of selecting item with keyboard arrow down
 				if ( suggestion.getText().contains( match ) ) {
 					suggestion.click();
 					Reporter.log("Found item and clicked it.");

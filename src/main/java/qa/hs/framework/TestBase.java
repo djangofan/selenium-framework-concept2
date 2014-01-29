@@ -2,6 +2,7 @@ package qa.hs.framework;
 
 import java.io.File;
 
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 
 public abstract class TestBase {
@@ -23,6 +24,11 @@ public abstract class TestBase {
 	      if ( !new File(directory).exists() ) {
 	          new File(directory).mkdir();
 	      }
+	}
+	
+	@AfterSuite
+	public static void generateCustomReport() {
+		//TODO
 	}
 	
 }

@@ -8,15 +8,7 @@ import org.testng.annotations.BeforeSuite;
 public abstract class TestBase {
 
 	public static final String directory = "data";
-	public static File dataFile;
-	
-	public String appUrl;
-	public String browser;
-	public String browserVersion;
-	public String osType;
-	public String resolution;
-	protected SeHelper se;
-	public String hubUrl;
+	public static File dataFile;	
 	
 	@BeforeSuite 
 	public static void setup() {

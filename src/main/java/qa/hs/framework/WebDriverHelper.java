@@ -3,6 +3,7 @@ package qa.hs.framework;
 import java.text.DecimalFormat;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -10,15 +11,15 @@ import org.testng.Reporter;
 
 public class WebDriverHelper {
 
-	private WebDriver wd;
+	private WebDriver driver;
 
 	public WebDriverHelper( WebDriver driver ) {
-		this.wd = driver;
+		this.driver = driver;
 	}
 
 	public void clearAndType( By field, String text ) {
 		if ( elementExists( field ) ) {
-		    WebElement el = wd.findElement( field );
+		    WebElement el = driver.findElement( field );
 		    el.submit();
 		    el.clear(); 
 		    el.sendKeys( text ); 
@@ -27,24 +28,32 @@ public class WebDriverHelper {
 		}
 	}
 
-	public WebElement getElementByLocator( final By locator ) {
+	public WebElement getElementByLocator( By locator ) {
 		Reporter.log( "Get element by locator: " + locator.toString(), true );                
-		final long startTime = System.currentTimeMillis();
 		WebElement we = null;
 		int tries = 0;
-		while ( (System.currentTimeMillis() - startTime) < 91000 ) {
-			Reporter.log( "Searching for element. Try number " + (tries++), true );  
+		while ( true ) {
+			tries++;
+			Reporter.log( "Searching for element. Try number: " + tries, true );  
 			try {
-				we = wd.findElement( locator );
-				waitTimer( 5, 1000 );
+				we = driver.findElement( locator );
 				break;
-			} catch ( StaleElementReferenceException e ) {                                                
-				Reporter.log( "Stale element exception.", true );
+			} catch ( StaleElementReferenceException sere ) {   
+				if ( tries < 5 ) {
+				    Reporter.log( "Ignoring a StaleElementReferenceException!", true );
+				} else {
+					Reporter.log( sere.getLocalizedMessage() );
+				}
+			} catch ( NoSuchElementException nse ) { 
+				if ( tries < 5 ) {
+				    Reporter.log( "Ignoring a NoSuchElementException!", true );
+				} else {
+					Reporter.log( nse.getLocalizedMessage() );
+				}
 			}
+			waitTimer( 5, 1000 );
 		}
-		long endTime   = System.currentTimeMillis();
-		long totalTime = endTime - startTime;
-		Reporter.log( "Searched for " + totalTime + " milliseconds.", true );
+		Reporter.log( "Finished getting element: " + locator, true );
 		return we;
 	}
 
@@ -57,7 +66,7 @@ public class WebDriverHelper {
 			int x = 0;
 			while( x < units ) {
 				Thread.sleep( mills );
-				Reporter.log( ".", true );
+				//Reporter.log( ".", true );
 				x = x + 1;
 			}
 		} catch ( InterruptedException ex ) {
@@ -67,7 +76,7 @@ public class WebDriverHelper {
 
 	public boolean elementExists( By locator ) {
 		waitTimer( 1, 500 );
-		return wd.findElements( locator ).size() != 0;
+		return driver.findElements( locator ).size() != 0;
 	}
 
 }

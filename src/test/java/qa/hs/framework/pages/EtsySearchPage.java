@@ -1,71 +1,36 @@
 package qa.hs.framework.pages;
 
 import java.util.List;
-
-import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.ElementNotVisibleException;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.StaleElementReferenceException;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.LoadableComponent;
 import org.testng.Reporter;
 
-import qa.hs.framework.SeHelper;
+import qa.hs.framework.SeBuilder;
+import qa.hs.framework.WebDriverHelper;
 
-public class EtsySearchPage extends LoadableComponent<EtsySearchPage> {
+public class EtsySearchPage {
 	
-	public static final By lazyLoadedSuggestionList = By.cssSelector("div.nav-search-text div#search-suggestions ul li");
-	public static final By searchField = By.xpath(".//*[@id='search-query']");
-	public static final By searchButton = By.xpath(".//*[@id='search_submit']");
-	private SeHelper se;
+	private WebDriver driver;
+	private WebDriverHelper helper;
+	
+	private By lazyLoadedSuggestionList = By.cssSelector("div.nav-search-text div#search-suggestions ul li");
+	private By searchField = By.xpath(".//*[@id='search-query']");
+	private By searchButton = By.xpath(".//*[@id='search_submit']");
 
-	public EtsySearchPage( SeHelper se ) {
-		this.se = se;
-		this.get(); // should start the page load loop
+	public EtsySearchPage( SeBuilder se ) {
+		this.driver = se.getDriver();
+		this.helper = se.getHelper();
+		driver.navigate().to( se.getAppUrl().toExternalForm() );
+		helper.waitTimer( 1, 1000 );
 		Reporter.log( "EtsySearchPage constructor loaded...", true );
 	}
-	
-	/**
-	 * Method: isLoaded()
-	 * Overidden method from the LoadableComponent class.
-	 * This method must contain an Assert on visibility of an element in order
-	 *  to trigger another call of load() if element is not found.
-	 * @return	void
-	 * @throws	null
-	 */
-	@Override
-	protected void isLoaded() throws Error {    	
-		Reporter.log( "EtsySearchPage.isLoaded()...", true );
-		boolean loaded = false;
-		if ( se.driver.getTitle().contains( "Etsy" ) ) {
-			loaded = true;
-		}
-		Assert.assertTrue( "Etsy search field is not yet displayed.", loaded );
-	}
 
-	/**
-	 * Method: load
-	 * Overidden method from the LoadableComponent class.
-	 * @return	void
-	 * @throws	null
-	 */
-	@Override
-	protected void load() {
-		Reporter.log("EtsySearchPage.load()...", true );
-		if ( se.driver.getTitle().contains( "Etsy" ) ) {
-			se.helper.waitTimer( 1, 1000 );		    
-		} else {
-			se.driver.navigate().to( se.getAppUrl() );
-			se.helper.waitTimer( 1, 1000 );	
-		}
-	}
-
-	/**
-	 * Method: clickSearchButton
-	 */
 	public void clickSearchButton() {
-		WebElement clicker = se.helper.getElementByLocator( searchButton );
+		WebElement clicker = helper.getElementByLocator( searchButton );
 		    try {
 				clicker.click();
 			} catch ( ElementNotVisibleException e ) {
@@ -76,6 +41,20 @@ public class EtsySearchPage extends LoadableComponent<EtsySearchPage> {
 				e.printStackTrace();
 			}
 	}
+	
+	/**
+	 * Method: clickSearchButton
+	 */
+	public void clickSearchField() {
+		Reporter.log("Clicking search field...");
+		WebElement clicker = helper.getElementByLocator( searchField );
+		try {
+		    clicker.click();
+		} catch ( StaleElementReferenceException e ) {
+			Reporter.log( "Element not visible exception clicking search button.\n" + e.getMessage() );
+			e.printStackTrace();
+		}
+	}
 
 	/**
 	 * Because of how the page object is initialized, we are using getAttribute here
@@ -83,7 +62,7 @@ public class EtsySearchPage extends LoadableComponent<EtsySearchPage> {
 	 * @return	void
 	 */
 	public void setSearchString( String sstr ) {
-		se.helper.clearAndType( searchField, sstr );
+		helper.clearAndType( searchField, sstr );
 	}
 	
 	/**
@@ -95,9 +74,9 @@ public class EtsySearchPage extends LoadableComponent<EtsySearchPage> {
 		Reporter.log("Click Etsy logo...");
 		WebElement logo = null;
 		By locator = By.cssSelector( "h1#etsy a" );
-		logo = se.helper.getElementByLocator( locator );
+		logo = helper.getElementByLocator( locator );
 		logo.click();
-		se.helper.waitTimer(2, 1000);
+		helper.waitTimer(2, 1000);
 	}
 
 	/**
@@ -110,8 +89,8 @@ public class EtsySearchPage extends LoadableComponent<EtsySearchPage> {
 	 */
 	public void selectInEtsyDropdown( String match ) {
 		Reporter.log("Selecting \"" + match + "\" from Etsy dynamic dropdown.");
-		List<WebElement> allSuggestions = se.driver.findElements( lazyLoadedSuggestionList );  
-		WebElement searcher = se.driver.findElement( searchField );
+		List<WebElement> allSuggestions = driver.findElements( lazyLoadedSuggestionList );  
+		WebElement searcher = driver.findElement( searchField );
 		try {
 			for ( WebElement suggestion : allSuggestions ) {
 				Thread.sleep(600);

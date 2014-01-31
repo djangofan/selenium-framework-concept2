@@ -19,33 +19,34 @@ import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.safari.SafariDriver;
+import org.testng.Reporter;
 
-public class SeHelper 
+public class SeBuilder 
 {
-    public WebDriver driver;
-    public WebDriverHelper helper;
 	public final File CHROMEDRIVER = new File("chromedriver.exe");
 	public final File CHROMEDRIVERZIP = new File("chromedriver_win32.zip");
-    private String browser;
+    public WebDriverHelper helper;
+    public WebDriver driver;
+	private String browser;
 	private URL appUrl;
 	private URL hubUrl;
 	private String sauceUsername;
 	private String sauceKey;	
     
-	public SeHelper() {
+	public SeBuilder() {
         System.out.println("Created new SeHelper object.");
     }
 	
 	public void checkConfig() {
-		if ( browser == null ) {
+		if ( browser == null || browser.isEmpty() ) {
 			throw new NullPointerException("The browser type was not yet set in the SeHelper object.");
 		}
-		if ( appUrl == null ) {
+		if ( appUrl == null || appUrl.toExternalForm().isEmpty() ) {
 			throw new NullPointerException("The app url was not yet set in the SeHelper object.");
 		}
 	}
     
-	public SeHelper loadNewBrowser() {
+	public SeBuilder loadNewBrowser() {
         checkConfig();
 		System.out.println("Loading WebDriver instance...");
 		DesiredCapabilities abilities = null;
@@ -92,10 +93,10 @@ public class SeHelper
 			// not yet
 			break;
 		default:
-			throw new IllegalStateException( "Unknown browser: " + browser );
+			throw new IllegalStateException( "Unknown browser string '" + browser + "'." );
 		}
 		if ( !(driver == null) ) {
-			helper = new WebDriverHelper( driver );
+			setHelper( new WebDriverHelper( driver ) );
 		} else {
 			throw new NullPointerException("Driver did not load or is null.");
 		}
@@ -166,9 +167,9 @@ public class SeHelper
 					e.printStackTrace();
 				}
 				if ( CHROMEDRIVERZIP.exists() ) {
-					System.out.println( "Finished downloading Chrome driver zip archive: " + CHROMEDRIVERZIP.getAbsolutePath() );
+					Reporter.log( "Finished downloading Chrome driver zip archive: " + CHROMEDRIVERZIP.getAbsolutePath(), true );
 				} else {
-					System.out.println( "Failure to download the Chrome driver zip archive." );
+					Reporter.log( "Failure to download the Chrome driver zip archive.", true );
 				}				
 			}
 			if ( CHROMEDRIVERZIP.exists() ) {
@@ -178,7 +179,7 @@ public class SeHelper
 				throw new IllegalStateException( "Could not unzip Chrome driver.");
 			}
 		} else {
-			System.out.println("Chrome driver was found located at: " + CHROMEDRIVER.getAbsolutePath() );
+			Reporter.log("Chrome driver was found located at: " + CHROMEDRIVER.getAbsolutePath(), true );
 		}
 	}
 
@@ -199,6 +200,14 @@ public class SeHelper
 			e.printStackTrace();
 		}
 	}
+	
+    public WebDriver getDriver() {
+		return driver;
+	}
+
+	public void setDriver( WebDriver driver ) {
+		this.driver = driver;
+	}
 
 	public String getSauceUsername() {
 		return sauceUsername;
@@ -218,6 +227,14 @@ public class SeHelper
 
 	public void setBrowser( String bro ) {
 		browser = bro;		
+	}
+
+	public WebDriverHelper getHelper() {
+		return helper;
+	}
+
+	public void setHelper( WebDriverHelper helper ) {
+		this.helper = helper;
 	}
     
 }

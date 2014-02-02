@@ -12,7 +12,7 @@ import java.io.IOException;
 
 public class ScreenshotListener extends TestListenerAdapter {
 
-  @Override
+/*  @Override
   public void onTestFailure(ITestResult tr) {
     File screenshot = new File("screenshots" + File.separator + System.currentTimeMillis() + "_" + tr.getName() + ".png");
     if (!screenshot.exists()) {
@@ -31,7 +31,8 @@ public class ScreenshotListener extends TestListenerAdapter {
       e.printStackTrace();
     }
     System.out.println("Written screenshot to " + screenshot.getAbsolutePath());
-  }
+  }*/
+  
 }
 
 

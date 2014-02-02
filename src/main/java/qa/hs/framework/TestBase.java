@@ -2,24 +2,29 @@ package qa.hs.framework;
 
 import java.io.File;
 
-import org.testng.annotations.AfterTest;
+import org.openqa.selenium.WebDriver;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeSuite;
 
 public abstract class TestBase {
+	
+	protected WebDriver driver;
+	protected SeUtil util;
 
 	public static final String directory = "data";
 	public static File dataFile;	
 	
 	@BeforeSuite 
-	public static void setup() {
+	public static void setUp() {
 		dataFile = new File( directory );
 	      if ( !new File(directory).exists() ) {
 	          new File(directory).mkdir();
 	      }
 	}
 	
-	@AfterTest
+	@AfterMethod
 	public void afterTest() {
+		System.out.println("Called afterTest() method...");
 		/* TODO for SauceLabs job update
 
 		String jobID = ((RemoteWebDriver) driver).getSessionId().toString();

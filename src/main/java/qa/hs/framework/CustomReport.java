@@ -144,8 +144,8 @@ public class CustomReport implements IReporter
 	
 	public String convertLongToCanonicalLengthOfTime( long timeLength )
 	{		
-		if ( timeLength <= 0 || timeLength >= 86400000 ) {
-			System.out.println("Time passed in is: " + timeLength );
+		System.out.println("Time passed in is: " + timeLength );
+		if ( timeLength >= 86400000 ) {
             throw new IllegalArgumentException("Duration must be greater than zero or less than 24 hours!");
         }
 

@@ -11,13 +11,13 @@ import qa.hs.framework.SeBuilder;
 import qa.hs.framework.data.TestData;
 import qa.hs.framework.pages.TestPage;
 
-public class SampleTest2 extends TestBase {
+public class SampleTest4 extends TestBase {
 	
 	@Test(dataProvider = "testdata", dataProviderClass = TestData.class)
-    public void test2( SeBuilder se, XmlTest testArgs ) {
+    public void test6( SeBuilder se, XmlTest testArgs ) {
     	se.loadNewBrowser();    	
     	this.util = se.getUtil();
-    	util.setWindowPosition( se.getDriver(), 800, 600, 20, 20 );
+    	util.setWindowPosition( se.getDriver(), 800, 600, 40, 200 );
     	Map<String, String> params = testArgs.getAllParameters();
     	TestPage ep = new TestPage( se.getDriver() );
     	util.waitTimer(1,  1000);
@@ -32,10 +32,10 @@ public class SampleTest2 extends TestBase {
     }
     
 	@Test(dataProvider = "testdata", dataProviderClass = TestData.class)
-    public void test4( SeBuilder se, XmlTest testArgs ) {
+    public void test8( SeBuilder se, XmlTest testArgs ) {
     	se.loadNewBrowser();    	
     	this.util = se.getUtil();
-    	util.setWindowPosition( se.getDriver(), 800, 600, 500, 200 );
+    	util.setWindowPosition( se.getDriver(), 800, 600, 300, 100 );
     	Map<String, String> params = testArgs.getAllParameters();
     	TestPage ep = new TestPage( se.getDriver() );
     	util.waitTimer(1,  1000);
@@ -48,5 +48,5 @@ public class SampleTest2 extends TestBase {
     	util.waitTimer( 5, 1000 );
     	se.getDriver().quit();
     }
-    
+
 }

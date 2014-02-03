@@ -7,7 +7,7 @@ import org.testng.ITestContext;
 import org.testng.annotations.DataProvider;
 import org.testng.xml.XmlTest;
 
-import qa.hs.framework.SeBuilder;
+import qa.hs.framework.SeHelper;
 
 public class TestData {
 	
@@ -18,7 +18,7 @@ public class TestData {
 		Object[][] testData = new Object[tests.size()][2];
 		int i = 0;
 		for ( XmlTest thisTest : tests ) {
-			SeBuilder se = new SeBuilder();
+			SeHelper se = new SeHelper();
 			se.setAppUrl( suiteParams.get( "appUrl" ) );
 			se.setHubUrl( suiteParams.get( "hubUrl" ) );
 			se.setSauceUsername( suiteParams.get( "sauceUsername" ) );

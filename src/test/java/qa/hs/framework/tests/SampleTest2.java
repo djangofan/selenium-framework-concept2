@@ -7,14 +7,14 @@ import org.testng.annotations.Test;
 import org.testng.xml.XmlTest;
 
 import qa.hs.framework.TestBase;
-import qa.hs.framework.SeBuilder;
+import qa.hs.framework.SeHelper;
 import qa.hs.framework.data.TestData;
 import qa.hs.framework.pages.TestPage;
 
 public class SampleTest2 extends TestBase {
 	
 	@Test(dataProvider = "testdata", dataProviderClass = TestData.class)
-    public void test2( SeBuilder se, XmlTest testArgs ) {
+    public void test2( SeHelper se, XmlTest testArgs ) {
     	se.loadNewBrowser();    	
     	this.util = se.getUtil();
     	util.setWindowPosition( se.getDriver(), 800, 600, 20, 20 );
@@ -32,7 +32,7 @@ public class SampleTest2 extends TestBase {
     }
     
 	@Test(dataProvider = "testdata", dataProviderClass = TestData.class)
-    public void test4( SeBuilder se, XmlTest testArgs ) {
+    public void test4( SeHelper se, XmlTest testArgs ) {
     	se.loadNewBrowser();    	
     	this.util = se.getUtil();
     	util.setWindowPosition( se.getDriver(), 800, 600, 500, 200 );

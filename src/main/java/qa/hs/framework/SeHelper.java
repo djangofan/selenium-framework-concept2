@@ -23,7 +23,7 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.safari.SafariDriver;
 import org.testng.Reporter;
 
-public final class SeBuilder
+public final class SeHelper
 {
 
 	private SeUtil util;
@@ -37,7 +37,7 @@ public final class SeBuilder
 	private String sauceUsername;
 	private String sauceKey;
 
-	public SeBuilder() {
+	public SeHelper() {
 		System.out.println("Created new SeBuilder object.");
 	}
 
@@ -132,7 +132,7 @@ public final class SeBuilder
 		return sauceUsername;
 	}
 
-	public SeBuilder loadNewBrowser() {
+	public SeHelper loadNewBrowser() {
 		System.out.println("Loading WebDriver instance...");
 		DesiredCapabilities abilities = null;
 		switch ( browser ) {
@@ -263,6 +263,11 @@ public final class SeBuilder
 		} catch ( ZipException e ) {
 			e.printStackTrace();
 		}
-	}	
+	}
+	
+	public static class SeBuilder {
+	    //TODO Implement builder pattern.
+		// http://www.javacodegeeks.com/2013/01/the-builder-pattern-in-practice.html
+	}
 	
 }

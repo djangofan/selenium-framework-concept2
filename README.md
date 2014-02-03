@@ -12,3 +12,5 @@ Selenium framework concept.  Demonstrates the following concepts:
 | 5 |Lazy Loading | Lazy loaded page objects and WebDriver helper class. |
 | 6 |Builder Design Pattern | WebDriver instance contained within a class using the "Builder" design pattern. |
 | 7 | TestNG DataProvider | Implemented a DataProvider that loads parameterized data from the TestNG XML context. |
+| 8 | Improved HTML Report | HTML test report shows human readable time values. |
+| 9 | - | - |

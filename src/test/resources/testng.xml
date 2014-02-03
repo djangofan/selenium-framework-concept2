@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
-<suite name="Custom Report Suite" verbose="10" parallel="methods" thread-count="2">
-	<!-- <listeners>
+<suite name="Custom Report Suite" verbose="10" parallel="methods" thread-count="10">
+	<listeners>
 		<listener class-name="qa.hs.framework.CustomReport" />
-	</listeners> -->
+	</listeners>
 	<parameter name="browser" value="chrome" />
 	<parameter name="hubUrl" value="" />
 	<parameter name="appUrl" value="http://djangofan.github.io/html-test-site/site/w1.html" />

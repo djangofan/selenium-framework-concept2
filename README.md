@@ -9,7 +9,8 @@ Selenium framework concept.  Demonstrates the following concepts:
 | 2 | Maven Surefire | Running TestNG from a Maven Surefire goal. |
 | 3 | Custom HTML Report | Generating a customized report from a TestNG report listener. |
 | 4 | Multi-Threaded | Running each test class in separate threads.  This sample project runs 4 threads. |
-| 5 |Lazy Loading | Lazy loaded page objects and WebDriver helper class. Does not use PageFactory for page objects.  Does not initialize WebDriver until @Test starts. |
+| 5 |Lazy Loaded Pages | Lazily loaded page objects. Does not use PageFactory for page objects.   |
+| 6 | Lazy Loaded WebDriver Instance | Lazily loaded WebDriver.  Does not initialize WebDriver until @Test starts. |
 | 6 |Builder Design Pattern | WebDriver instance contained within a class using the "Builder" design pattern.  Still need to implement that. |
 | 7 | TestNG DataProvider | Implemented a DataProvider that loads parameterized data from the TestNG XML context. |
 | 8 | Improved HTML Report | HTML test report shows human readable time values.  See CustomReport.html after tests finish. |

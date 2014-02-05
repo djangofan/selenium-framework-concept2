@@ -29,24 +29,7 @@ public class SampleTest1 extends TestBase {
     	ep.clickProcessButton();
     	util.waitTimer( 5, 1000 );
     	se.getDriver().quit();
-    }
-    
-	@Test(dataProvider = "testdata", dataProviderClass = TestData.class)
-    public void test3( SeHelper se, XmlTest testArgs ) {
-    	se.loadNewBrowser();    	
-    	this.util = se.getUtil();
-    	util.setWindowPosition( se.getDriver(), 800, 600, 500, 200 );
-    	Map<String, String> params = testArgs.getAllParameters();
-    	TestPage ep = new TestPage( se.getDriver() );
-    	util.waitTimer(1,  1000);
-    	Reporter.log( "Page title: " + se.getDriver().getTitle() );
-    	ep.clickTestInputField();
-    	ep.clickTestOutputField();
-    	util.waitTimer(5,  1000);
-    	ep.setInputFieldString( params.get( "textString1" ) );
-    	ep.clickProcessButton();
-    	util.waitTimer( 5, 1000 );
-    	se.getDriver().quit();
+    	se.uploadResultToSauceLabs( "", "build1", new Boolean(true) );
     }
     
 }

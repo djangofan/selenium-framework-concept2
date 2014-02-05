@@ -14,7 +14,7 @@ import qa.hs.framework.pages.TestPage;
 public class SampleTest4 extends TestBase {
 	
 	@Test(dataProvider = "testdata", dataProviderClass = TestData.class)
-    public void test6( SeHelper se, XmlTest testArgs ) {
+    public void test4( SeHelper se, XmlTest testArgs ) {
     	se.loadNewBrowser();    	
     	this.util = se.getUtil();
     	util.setWindowPosition( se.getDriver(), 800, 600, 40, 200 );
@@ -29,24 +29,7 @@ public class SampleTest4 extends TestBase {
     	ep.clickProcessButton();
     	util.waitTimer( 5, 1000 );
     	se.getDriver().quit();
-    }
-    
-	@Test(dataProvider = "testdata", dataProviderClass = TestData.class)
-    public void test8( SeHelper se, XmlTest testArgs ) {
-    	se.loadNewBrowser();    	
-    	this.util = se.getUtil();
-    	util.setWindowPosition( se.getDriver(), 800, 600, 300, 100 );
-    	Map<String, String> params = testArgs.getAllParameters();
-    	TestPage ep = new TestPage( se.getDriver() );
-    	util.waitTimer(1,  1000);
-    	Reporter.log( "Page title: " + se.getDriver().getTitle() );
-    	ep.clickTestInputField();
-    	ep.clickTestOutputField();
-    	util.waitTimer(5,  1000);
-    	ep.setInputFieldString( params.get( "textString2" ) );
-    	ep.clickProcessButton();
-    	util.waitTimer( 5, 1000 );
-    	se.getDriver().quit();
+    	se.uploadResultToSauceLabs("", "build4", true );
     }
 
 }

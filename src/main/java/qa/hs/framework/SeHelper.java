@@ -8,12 +8,13 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 
+import org.json.simple.JSONArray;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -34,11 +35,14 @@ public final class SeHelper
 	private String browser;
 	private URL appUrl;
 	private URL hubUrl;
-	private String sauceUsername;
+	private String sauceUser;
 	private String sauceKey;
+	private String sessionId;
+	private String testName;
 
-	public SeHelper() {
+	public SeHelper( String testName ) {
 		System.out.println("Created new SeBuilder object.");
+		this.testName = testName;
 	}
 
 	public URL getAppUrl() {
@@ -50,12 +54,19 @@ public final class SeHelper
 	}
 
 	public WebDriver getDriver() {
-		if ( driver == null ) {
-			loadNewBrowser();
-			return driver;
+		if ( this.driver == null ) {
+			throw new IllegalStateException( "The driver is not yet loaded. Cannot return it." );
 		} else {
-		    return driver;
+		    return this.driver;
 		}
+	}
+
+	public String getTestName() {
+		return testName;
+	}
+
+	public void setTestName(String testName) {
+		this.testName = testName;
 	}
 
 	public URL getHubUrl() {
@@ -128,11 +139,12 @@ public final class SeHelper
 		return sauceKey;
 	}
 
-	public String getSauceUsername() {
-		return sauceUsername;
+	public String getSauceUser() {
+		return sauceUser;
 	}
 
 	public SeHelper loadNewBrowser() {
+		this.testName = testName;
 		System.out.println("Loading WebDriver instance...");
 		DesiredCapabilities abilities = null;
 		switch ( browser ) {
@@ -158,15 +170,38 @@ public final class SeHelper
 		case "phantomjs":
 			// not yet
 			break;
-		case "gridchrome32":
-			if ( hubUrl.toExternalForm().isEmpty() ) {
-				throw new IllegalStateException( "Please set the Selenium Grid hub URL before calling loadNewBrowser()");
+		case "gridchrome31":
+			String normalizedHubUrl = hubUrl.toExternalForm();
+			if ( normalizedHubUrl.isEmpty() ) {
+				throw new IllegalStateException( "Please set the grid hub URL before calling loadNewBrowser()");
+			} else if ( normalizedHubUrl.contains("User") && normalizedHubUrl.contains("Key") ) {
+				Reporter.log("Normalizing the Sauce Labs grig hub url...");
+				normalizedHubUrl = normalizedHubUrl.replace("User", this.getSauceUser() );
+				normalizedHubUrl = normalizedHubUrl.replace("Key", this.getSauceKey() );
+				try {
+					hubUrl = new URL( normalizedHubUrl );
+				} catch ( MalformedURLException e ) {
+					e.printStackTrace();
+				}
+			} else {
+				Reporter.log("Using raw hub url to connect to Selenium grid hub...");
 			}
 			abilities = DesiredCapabilities.chrome();
+			if ( testName.isEmpty() ) {
+				abilities.setCapability( "name", "Local" );
+			} else {
+				abilities.setCapability( "name", this.testName );
+			}
+			JSONArray tags = new JSONArray(); 
+			 tags.add("gridchrome31"); 
+			 tags.add("WIN8"); 
+			 tags.add("high-res"); 
+			abilities.setCapability( "tags", tags );
 			abilities.setCapability( "platform", "Windows 8" );
-			abilities.setCapability( "version", "32" );
+			abilities.setCapability( "version", "31" );
 			abilities.setCapability( "screen-resolution", "1280x1024" );
 			driver = new RemoteWebDriver( hubUrl, abilities );
+			this.sessionId = ((RemoteWebDriver)driver).getSessionId().toString();
 			break;
 		case "gridfirefox26":
 			// not yet
@@ -236,7 +271,7 @@ public final class SeHelper
 	}
 
 	public void setSauceUsername(String sauceUsername) {
-		this.sauceUsername = sauceUsername;
+		this.sauceUser = sauceUsername;
 	}
 	
 	public void setUtil( SeUtil util ) {
@@ -268,6 +303,27 @@ public final class SeHelper
 	public static class SeBuilder {
 	    //TODO Implement builder pattern.
 		// http://www.javacodegeeks.com/2013/01/the-builder-pattern-in-practice.html
+	}
+	
+	public boolean uploadResultToSauceLabs( String testName, String build, Boolean pass ) {
+		Reporter.log("Uploading sauce result for '" + build + "' : " + pass, true );
+		Map<String, Object> updates = new HashMap<String, Object>();
+		if ( !testName.isEmpty() ) {
+			Reporter.log( "Updating SauceLabs test name to '" + testName + "'." );
+			updates.put( "name", testName );
+		}
+		updates.put( "passed", pass.toString() );
+		updates.put( "build", build );
+		SauceREST client;
+		try {
+			client = new SauceREST( this.getSauceUser(), this.getSauceKey() );
+			client.updateJobInfo( this.sessionId, updates );
+		} catch ( Exception e ) {
+			return false;
+		}		
+		String jobInfo = client.getJobInfo( this.sessionId );
+		Reporter.log( "Job info: " + jobInfo, true );
+		return true;
 	}
 	
 }

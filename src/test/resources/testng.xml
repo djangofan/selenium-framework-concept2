@@ -1,29 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
-<suite name="Custom Report Suite" verbose="10" parallel="classes" thread-count="4">
+<suite name="Custom Report Suite" verbose="10" parallel="classes" thread-count="2">
 	<listeners>
 		<listener class-name="qa.hs.framework.CustomReport" />
 	</listeners>
-	<parameter name="browser" value="chrome" />
-	<parameter name="hubUrl" value="" />
-	<parameter name="appUrl"
-		value="http://djangofan.github.io/html-test-site/site/w1.html" />
-	<parameter name="sauceUsername" value="" />
-	<parameter name="sauceKey" value="" />
+	<parameter name="browser" value="gridchrome31" />
+	<parameter name="hubUrl" value="http://User:Key@ondemand.saucelabs.com:80/wd/hub" />
+	<parameter name="appUrl" value="http://djangofan.github.io/html-test-site/site/w1.html" />
+	<parameter name="sauceUser" value="austenjt" />
+	<parameter name="sauceKey" value="b3ef5f1d-31e8-422d-b897-xxxxxxxxxxxxx" />
 	<test name="Test1">
-		<parameter name="textString1" value="This is a statement." />
-		<parameter name="textString2" value="Can I ask a question?" />
+		<parameter name="textString1" value="This is test 1." />
+		<parameter name="textString2" value="Can I ask a question about test 1?" />
 		<classes>
-	        <class name="qa.hs.framework.tests.SampleTest1" />
-			<class name="qa.hs.framework.tests.SampleTest2" />
-			<class name="qa.hs.framework.tests.SampleTest3" />
-			<class name="qa.hs.framework.tests.SampleTest4" />
+      <class name="qa.hs.framework.tests.SampleTest1" />
 		</classes>
 	</test>
-	<test name="Test2">
-		<parameter name="textString1" value="This is another statement." />
-		<parameter name="textString2" value="Can I ask another question?" />
-		<classes>
-		</classes>
-	</test>
+  <test name="Test2">
+    <parameter name="textString1" value="This is test 2." />
+    <parameter name="textString2" value="Can I ask a question about test 2?" />
+    <classes>
+      <class name="qa.hs.framework.tests.SampleTest2" />
+    </classes>
+  </test>
+    <test name="Test3">
+    <parameter name="textString1" value="This is test 3." />
+    <parameter name="textString2" value="Can I ask a question about test 3?" />
+    <classes>
+      <class name="qa.hs.framework.tests.SampleTest3" />
+    </classes>
+  </test>
+    <test name="Test4">
+    <parameter name="textString1" value="This is test 4." />
+    <parameter name="textString2" value="Can I ask a question about test 4?" />
+    <classes>
+      <class name="qa.hs.framework.tests.SampleTest4" />
+    </classes>
+  </test>
 </suite>

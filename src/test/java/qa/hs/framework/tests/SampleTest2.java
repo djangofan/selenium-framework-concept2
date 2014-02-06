@@ -15,8 +15,10 @@ public class SampleTest2 extends TestBase {
 	
 	@Test(dataProvider = "testdata", dataProviderClass = TestData.class)
     public void test2( SeHelper se, XmlTest testArgs ) {
-    	se.loadNewBrowser();    	
-    	this.util = se.getUtil();
+		Reporter.log( "Start of test2." );
+		se.loadDriver();
+		se.navigateToStart();
+        this.util = se.getUtil();
     	util.setWindowPosition( se.getDriver(), 800, 600, 20, 20 );
     	Map<String, String> params = testArgs.getAllParameters();
     	TestPage ep = new TestPage( se.getDriver() );

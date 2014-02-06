@@ -45,7 +45,10 @@ public class CustomReport implements IReporter
 	 */
 	@Override
 	public void generateReport( List<XmlSuite> xml, List<ISuite> suites, String outdir ) {
-		System.out.println();
+		Reporter.log( "", true );
+		Reporter.log( "-------------------------------------", true );
+		Reporter.log( "-- Generating test HTML report...  --", true );
+		Reporter.log( "-------------------------------------", true );
 		//Iterating over each suite included in the test
 		for ( ISuite suite : suites ) {
 			//Following code gets the suite name

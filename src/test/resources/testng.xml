@@ -6,16 +6,17 @@
 	</listeners>
 	<parameter name="browser" value="gridchrome31" />
 	<parameter name="hubUrl" value="http://User:Key@ondemand.saucelabs.com:80/wd/hub" />
-	<parameter name="appUrl" value="http://djangofan.github.io/html-test-site/site" />
+	<parameter name="appUrl" value="http://search.maven.org/" />
 	<parameter name="sauceUser" value="austenjt" />
-	<parameter name="sauceKey" value="b3ef5f1d-31e8-422d-b897-9112606e21f8" />
+	<parameter name="sauceKey" value="bde85696-2a40-486b-98de-38ff7e13d6fc" />
 	<test name="Test1">
-		<parameter name="textString1" value="This is test 1." />
-		<parameter name="textString2" value="Can I ask a question about test 1?" />
+		<parameter name="textString1" value="selenium-java" />
+		<parameter name="textString2" value="guava" />
 		<classes>
       <class name="qa.hs.framework.tests.SampleTest1" />
 		</classes>
 	</test>
+  <!-- 
   <test name="Test2">
     <parameter name="textString1" value="This is test 2." />
     <parameter name="textString2" value="Can I ask a question about test 2?" />
@@ -37,4 +38,5 @@
       <class name="qa.hs.framework.tests.SampleTest4" />
     </classes>
   </test>
+  -->
 </suite>

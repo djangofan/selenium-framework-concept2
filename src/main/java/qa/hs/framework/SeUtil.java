@@ -46,11 +46,6 @@ public class SeUtil {
 		return we;
 	}
 	
-	public void setWindowPosition( WebDriver drv, int width, int height, int fleft, int ftop ) {
-		drv.manage().window().setPosition( new Point(fleft, ftop) );
-		drv.manage().window().setSize( new Dimension( width, height) );
-	}
-
 	public void waitTimer( int units, int mills ) {
 		DecimalFormat df = new DecimalFormat("###.##");
 		double totalSeconds = ((double)units*mills)/1000;

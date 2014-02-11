@@ -28,7 +28,6 @@ public abstract class TestBase {
 	@AfterMethod
 	public void afterTest() {
 		Reporter.log( "Called afterTest() method...", true );
-        // You should override this probably
 	}
 	
 }

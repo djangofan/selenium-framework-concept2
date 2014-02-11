@@ -15,6 +15,9 @@ import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 
 import org.json.simple.JSONArray;
+import org.openqa.selenium.Dimension;
+import org.openqa.selenium.Platform;
+import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -50,7 +53,7 @@ public final class SeHelper
 		this.hubUrl = builder.hubUrl;
 		this.driver = builder.driver;
 		this.util = builder.util;
-		this.abilities = builder.abilities;
+		this.setAbilities(builder.abilities);
 	}	
 	
 	public void navigateToStart() {
@@ -118,26 +121,6 @@ public final class SeHelper
 		return browser;
 	}
 	
-	public void loadDriver() {
-		try {
-			this.driver = new RemoteWebDriver( parseUrl( appUrl ), this.abilities );
-		} catch ( Exception e ) {
-			Reporter.log( "\nThere was a problem loading the driver:", true );
-			e.printStackTrace();
-		}
-		this.sessionId = ((RemoteWebDriver)this.driver).getSessionId().toString();
-	}
-	
-	private URL parseUrl( String url ) {
-		URL formalUrl = null;
-		try { 
-			formalUrl = new URL( url );
-		} catch ( MalformedURLException e ) {
-			e.printStackTrace();
-		}
-		return formalUrl;
-	}
-	
 	public static class SeBuilder 
 	{
 		private static final File CHROMEDRIVER = new File("chromedriver.exe");
@@ -180,12 +163,41 @@ public final class SeHelper
 		
 		public SeHelper build() {
 			this.loadCapabilities();
+			this.loadDriver();
 			this.util = new SeUtil( this.driver );
 			return new SeHelper( this );
 		}
 		
+		private URL stringAsURL( String url ) {
+			URL formalUrl = null;
+			try { 
+				formalUrl = new URL( url );
+			} catch ( MalformedURLException e ) {
+				e.printStackTrace();
+			}
+			return formalUrl;
+		}
+		
+		public void loadDriver() {
+			try {
+				this.driver = new RemoteWebDriver( stringAsURL( appUrl ), this.abilities );
+				this.util.waitTimer( 1, 2000 );
+			} catch ( Exception e ) {
+				Reporter.log( "\nThere was a problem loading the driver:", true );
+				e.printStackTrace();
+			}
+			this.sessionId = ((RemoteWebDriver)this.driver).getSessionId().toString();
+	    	setWindowPosition( 800, 600, 20, 20 ); //TODO if grid , just maximize instead
+		}
+		
+		public void setWindowPosition( int width, int height, int fleft, int ftop ) {
+			this.driver.manage().window().setPosition( new Point(fleft, ftop) );
+			this.driver.manage().window().setSize( new Dimension( width, height) );
+		}
+		
 		@SuppressWarnings("unchecked") // JSONArray using legacy API
 		public void loadCapabilities() {
+			// https://code.google.com/p/selenium/wiki/DesiredCapabilities
 			System.out.println("Loading WebDriver '" + this.browser + "' instance...");
 			switch ( browser ) {
 			case "chrome":
@@ -232,9 +244,10 @@ public final class SeHelper
 				    tags.add("Windows 8"); 
 				    tags.add("1280x1024"); 
 				this.abilities.setCapability( "tags", tags );
-				this.abilities.setCapability( "platform", "Windows 8" );
+				this.abilities.setCapability( "platform", Platform.WIN8 );
 				this.abilities.setCapability( "version", "31" );
 				this.abilities.setCapability( "screen-resolution", "1280x1024" );
+				this.abilities.setCapability( "driver", "ALL" );
 				Reporter.log("Default application url: " + appUrl, true );
 				break;
 			case "gridfirefox26":
@@ -249,7 +262,7 @@ public final class SeHelper
 			default:
 				throw new IllegalStateException( "Unknown browser string '" + browser + "'." );
 			}
-			Reporter.log( "Finished setting up driver.", true );
+			Reporter.log( "Finished setting up driver capabilities.", true );
 			
 		}
 		
@@ -305,6 +318,7 @@ public final class SeHelper
 			} else {
 				Reporter.log("Chrome driver was found located at: " + CHROMEDRIVER.getAbsolutePath(), true );
 			}
+			
 		}
 
 		/**
@@ -346,6 +360,14 @@ public final class SeHelper
 		String jobInfo = client.getJobInfo( this.sessionId );
 		Reporter.log( "Job info: " + jobInfo, true );
 		return true;
+	}
+
+	public DesiredCapabilities getAbilities() {
+		return abilities;
+	}
+
+	public void setAbilities(DesiredCapabilities abilities) {
+		this.abilities = abilities;
 	}
 	
 }

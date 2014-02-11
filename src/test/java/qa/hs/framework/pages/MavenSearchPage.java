@@ -9,36 +9,36 @@ import org.testng.Reporter;
 
 import qa.hs.framework.SeUtil;
 
-public class TestPage {
+public class MavenSearchPage {
 	
 	private WebDriver driver;
 	private SeUtil util;
 	
-	public By testInputField = By.xpath(".//*[@id='textFieldTestInputControlID']");
-	public By testInputButton = By.xpath(".//*[@id='textFieldTestProcessButtonID']");
-	public By testOutputField = By.xpath( ".//*[@id='textFieldTestOutputControlID']");
+	public By testInputField = By.xpath(".//*[@id='query']");
+	public By testInputButton = By.xpath(".//*[@id='queryButton']");
+	public By resultListHyperLinks = By.xpath( ".//*[@id='artifactId']");
 
-	public TestPage( WebDriver drv ) {
+	public MavenSearchPage( WebDriver drv ) {
 		this.driver = drv;	
 		util = new SeUtil( driver );
 		util.waitTimer( 3, 1000 );
-		Reporter.log( "TestPage constructor loaded...", true );
+		Reporter.log( "MavenSearchPage constructor loaded...", true );
 	}
 
-	public void clickProcessButton() {
+	public void clickSearchButton() {
 		WebElement clicker = util.getElementByLocator( testInputButton );
 		    try {
 				clicker.click();
 			} catch ( ElementNotVisibleException e ) {
-				Reporter.log( "Element not visible exception clicking process button.\n" + e.getMessage() );
+				Reporter.log( "Element not visible exception clicking search button.\n" + e.getMessage() );
 				e.printStackTrace();
 			} catch ( Exception e ) {
-				Reporter.log( "Exception clicking process button.\n" + e.getMessage() );
+				Reporter.log( "Exception clicking search button.\n" + e.getMessage() );
 				e.printStackTrace();
 			}
 	}
 	
-	public void clickTestInputField() {
+	public void clickSearchField() {
 		Reporter.log("Clicking test input field...");
 		WebElement el = util.getElementByLocator( testInputField );
 		try {
@@ -48,19 +48,8 @@ public class TestPage {
 			e.printStackTrace();
 		}
 	}
-	
-	public void clickTestOutputField() {
-		Reporter.log("Clicking test output field...");
-		WebElement el = util.getElementByLocator( testOutputField );
-		try {
-		    el.click();
-		} catch ( StaleElementReferenceException e ) {
-			Reporter.log( "Stale element exception clicking test output field.\n" + e.getMessage() );
-			e.printStackTrace();
-		}
-	}
 
-	public void setInputFieldString( String sstr ) {
+	public void setSearchFieldValue( String sstr ) {
 		util.getElementByLocator( this.driver, testInputField ).sendKeys( sstr );
 	}	
 

@@ -4,9 +4,7 @@ import java.text.DecimalFormat;
 import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.Dimension;
 import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.Point;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -62,7 +60,7 @@ public class SeUtil {
 		}        
 	}
 
-	public boolean elementExists( By locator ) {
+	public boolean elementsExist( By locator ) {
 		waitTimer( 1, 500 );
 		return driver.findElements( locator ).size() != 0;
 	}

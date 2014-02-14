@@ -1,18 +1,9 @@
 package qa.hs.framework;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
-
-import net.lingala.zip4j.core.ZipFile;
-import net.lingala.zip4j.exception.ZipException;
 
 import org.json.simple.JSONArray;
 import org.openqa.selenium.Dimension;
@@ -40,6 +31,8 @@ public final class SeHelper
 	private SeUtil util;
 	private WebDriver driver;
 	private DesiredCapabilities abilities;
+	private boolean isSauce;
+	private boolean isGrid;
 
 	private SeHelper( SeBuilder builder ) 
 	{
@@ -53,7 +46,9 @@ public final class SeHelper
 		this.hubUrl = builder.hubUrl;
 		this.driver = builder.driver;
 		this.util = builder.util;
-		this.setAbilities(builder.abilities);
+		this.abilities = builder.abilities;
+		this.isSauce = builder.isSauce;
+		this.setGrid(builder.isGrid);
 	}	
 	
 	public void navigateToStart() {
@@ -119,229 +114,10 @@ public final class SeHelper
 	
 	public String getBrowser() {
 		return browser;
-	}
-	
-	public static class SeBuilder 
-	{
-		private static final File CHROMEDRIVER = new File("chromedriver.exe");
-		private static final File CHROMEDRIVERZIP = new File("chromedriver_win32.zip");
-		private final String browser;
-		private final String testName; // if you do not use SauceLabs, we require this anyway
-		private String appUrl;
-		private SeUtil util;
-		private WebDriver driver;		
-		private String hubUrl;
-		private String sessionId;
-		private String sauceUser;
-		private String sauceKey;
-		private DesiredCapabilities abilities;
-		
-		public SeBuilder( String testName, String browser ) {
-			this.testName = testName;
-			this.browser = browser;
-		}
-		
-		public SeBuilder hubUrl( String hubUrl ) {
-			this.hubUrl = hubUrl;
-			return this;
-		}
-		
-		public SeBuilder appUrl( String appUrl ) {
-			this.appUrl = appUrl;
-			return this;
-		}
-		
-		public SeBuilder sauceUser( String sauceUser ) {
-			this.sauceUser = sauceUser;
-			return this;
-		}
-		
-		public SeBuilder sauceKey( String sauceKey ) {
-			this.sauceKey = sauceKey;
-			return this;
-		}
-		
-		public SeHelper build() {
-			this.loadCapabilities();
-			this.loadDriver();
-			this.util = new SeUtil( this.driver );
-			return new SeHelper( this );
-		}
-		
-		private URL stringAsURL( String url ) {
-			URL formalUrl = null;
-			try { 
-				formalUrl = new URL( url );
-			} catch ( MalformedURLException e ) {
-				e.printStackTrace();
-			}
-			return formalUrl;
-		}
-		
-		public void loadDriver() {
-			try {
-				this.driver = new RemoteWebDriver( stringAsURL( appUrl ), this.abilities );
-				this.util.waitTimer( 1, 2000 );
-			} catch ( Exception e ) {
-				Reporter.log( "\nThere was a problem loading the driver:", true );
-				e.printStackTrace();
-			}
-			this.sessionId = ((RemoteWebDriver)this.driver).getSessionId().toString();
-	    	setWindowPosition( 800, 600, 20, 20 ); //TODO if grid , just maximize instead
-		}
-		
-		public void setWindowPosition( int width, int height, int fleft, int ftop ) {
-			this.driver.manage().window().setPosition( new Point(fleft, ftop) );
-			this.driver.manage().window().setSize( new Dimension( width, height) );
-		}
-		
-		@SuppressWarnings("unchecked") // JSONArray using legacy API
-		public void loadCapabilities() {
-			// https://code.google.com/p/selenium/wiki/DesiredCapabilities
-			System.out.println("Loading WebDriver '" + this.browser + "' instance...");
-			switch ( browser ) {
-			case "chrome":
-				getLatestWindowsChromeDriver();
-				System.setProperty( "webdriver.chrome.driver", CHROMEDRIVER.getAbsolutePath() );
-				this.abilities = DesiredCapabilities.chrome();
-				driver = new ChromeDriver( abilities );
-				break;
-			case "firefox":
-				this.abilities = DesiredCapabilities.firefox();
-				driver = new FirefoxDriver( abilities );
-				this.abilities.setCapability( CapabilityType.SUPPORTS_JAVASCRIPT, true );
-				break;
-			case "ie":
-				System.setProperty("webdriver.ie.driver","IEDriverServer.exe");
-				this.abilities = DesiredCapabilities.internetExplorer();
-				driver = new InternetExplorerDriver( abilities );
-				break;
-			case "safari":
-				this.abilities = DesiredCapabilities.safari();
-				driver = new SafariDriver( abilities );
-				break;
-			case "phantomjs":
-				// not yet
-				break;
-			case "gridchrome31":
-				if ( hubUrl.isEmpty() ) {
-					throw new IllegalStateException( "Please set the grid hub URL before calling loadDriver()" );
-				} else if ( hubUrl.contains("User") && hubUrl.contains("Key") ) {
-					hubUrl = hubUrl.replace("User", this.sauceUser );
-					hubUrl = hubUrl.replace("Key", this.sauceKey );
-					Reporter.log("Using Sauce Labs grid hub url: " + hubUrl, true );
-				} else {
-					Reporter.log("Using raw hub url to connect to Selenium grid hub...", true );
-				}
-				this.abilities = DesiredCapabilities.chrome();
-				if ( testName.isEmpty() ) {
-					throw new IllegalArgumentException( "Selenium grid tests require that the test name capability be set." );
-				} else {
-					this.abilities.setCapability( "name", this.testName );
-				}
-				JSONArray tags = new JSONArray(); 
-				    tags.add( this.browser ); 
-				    tags.add("Windows 8"); 
-				    tags.add("1280x1024"); 
-				this.abilities.setCapability( "tags", tags );
-				this.abilities.setCapability( "platform", Platform.WIN8 );
-				this.abilities.setCapability( "version", "31" );
-				this.abilities.setCapability( "screen-resolution", "1280x1024" );
-				this.abilities.setCapability( "driver", "ALL" );
-				Reporter.log("Default application url: " + appUrl, true );
-				break;
-			case "gridfirefox26":
-				// not yet
-				break;
-			case "gridie10":
-				// not yet
-				break;
-			case "gridsafari7":
-				// not yet
-				break;
-			default:
-				throw new IllegalStateException( "Unknown browser string '" + browser + "'." );
-			}
-			Reporter.log( "Finished setting up driver capabilities.", true );
-			
-		}
-		
-		/*
-		 * Download latest Chrome WebDriver binary if necessary.
-		 */
-		private void getLatestWindowsChromeDriver() {
-			if ( !CHROMEDRIVER.exists() ) {	
-				FileOutputStream fos = null;
-				InputStream in = null;
-				try {
-					URL downloadUrl = new URL("http://chromedriver.storage.googleapis.com/index.html?path=2.8/chromedriver_win32.zip");
-					URLConnection conn = downloadUrl.openConnection();
-					in = conn.getInputStream();
-					fos = new FileOutputStream( CHROMEDRIVERZIP.getAbsoluteFile() );
-					byte[] b = new byte[1024];
-					int count;
-					while ( ( count = in.read(b) ) != -1 ) {
-						fos.write(b, 0, count);
-					}				
-				} catch ( FileNotFoundException e ) {
-					e.printStackTrace();
-				} catch ( IOException e ) {
-					e.printStackTrace();
-				} finally {
-					try {
-						fos.flush();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-					try {
-						fos.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-					try {
-						in.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-					if ( CHROMEDRIVERZIP.exists() ) {
-						Reporter.log( "Finished downloading Chrome driver zip archive: " + CHROMEDRIVERZIP.getAbsolutePath(), true );
-					} else {
-						Reporter.log( "Failure to download the Chrome driver zip archive.", true );
-					}				
-				}
-				if ( CHROMEDRIVERZIP.exists() ) {
-					unzip( CHROMEDRIVERZIP.getAbsolutePath(), CHROMEDRIVER.getAbsolutePath(), "" );
-					//CHROMEDRIVERZIP.delete();
-				} else {
-					throw new IllegalStateException( "Could not unzip Chrome driver.");
-				}
-			} else {
-				Reporter.log("Chrome driver was found located at: " + CHROMEDRIVER.getAbsolutePath(), true );
-			}
-			
-		}
-
-		/**
-		 * Unzip a zip file.
-		 * @param source
-		 * @param destination
-		 * @param password
-		 */
-		private static void unzip( String source, String destination, String password ) {
-			try {
-				ZipFile zipFile = new ZipFile( source );
-				if ( zipFile.isEncrypted() ) {
-					zipFile.setPassword( password );
-				}
-				zipFile.extractAll( destination );
-			} catch ( ZipException e ) {
-				e.printStackTrace();
-			}
-		}
-		
-	}
+	}	
 	
 	public boolean uploadResultToSauceLabs( String testName, String build, Boolean pass ) {
+		if ( !isSauce ) throw new IllegalStateException( "This is not a SauceLabs test.  Cannot upload result." );
 		Reporter.log("Uploading sauce result for '" + build + "' : " + pass, true );
 		Map<String, Object> updates = new HashMap<String, Object>();
 		if ( !testName.isEmpty() ) {
@@ -368,6 +144,243 @@ public final class SeHelper
 
 	public void setAbilities(DesiredCapabilities abilities) {
 		this.abilities = abilities;
+	}
+
+	public boolean isSauceTest() {
+		return isSauce;
+	}
+	
+	public boolean isGrid() {
+		return isGrid;
+	}
+
+	public void setGrid(boolean isGrid) {
+		this.isGrid = isGrid;
+	}
+
+	/*
+	 * SeBuilder inner class.  Using Builder design pattern.	
+	 */
+	public static class SeBuilder 
+	{
+		private final String browser; // final to make it a required option
+		private final String testName; // final to make it a required option
+		private String appUrl;
+		private SeUtil util;
+		private WebDriver driver;		
+		private String hubUrl;
+		private String sessionId;
+		private String sauceUser;
+		private String sauceKey;
+		private DesiredCapabilities abilities;
+		private boolean isGrid;
+		private boolean isSauce;
+		
+		public SeBuilder( String testName, String browser ) {
+			this.setIsSauce( false ); //sets a default if 'sauce' method is not used
+			this.setIsGrid( false ); //sets a default if 'grid' method is not used
+			this.testName = testName;
+			this.browser = browser;
+		}
+		
+		public SeBuilder hubUrl( String hubUrl ) {
+			this.hubUrl = hubUrl;
+			return this;
+		}
+		
+		public SeBuilder appUrl( String appUrl ) {
+			this.appUrl = appUrl;
+			return this;
+		}
+		
+		public SeBuilder sauce( boolean is ) {
+			this.isSauce = is;
+			return this;
+		}
+		
+		public SeBuilder grid( boolean is ) {
+			this.isGrid = is;
+			return this;
+		}
+		
+		public SeBuilder sauceUser( String sauceUser ) {
+			this.sauceUser = sauceUser;
+			return this;
+		}
+		
+		public SeBuilder sauceKey( String sauceKey ) {
+			this.sauceKey = sauceKey;
+			return this;
+		}
+		
+		public SeHelper build() {
+			this.setCapabilities();
+			if ( this.isSauce || this.isGrid ) {
+				this.loadGridDriver();
+				this.sessionId = ((RemoteWebDriver)this.driver).getSessionId().toString();
+			} else {
+				this.loadLocalDriver();
+			}
+			this.util = new SeUtil( this.driver );
+			return new SeHelper( this );
+		}
+		
+		private URL asURL( String url ) {
+			URL formalUrl = null;
+			try { 
+				formalUrl = new URL( url );
+			} catch ( MalformedURLException e ) {
+				e.printStackTrace();
+			}
+			return formalUrl;
+		}
+		
+		public void loadGridDriver() {
+			if ( this.isSauce && this.isGrid ) {
+				Reporter.log("Loading SauceLabs grid driver.");
+			} else {
+				Reporter.log("Loading standard grid driver.");
+			}
+			try {
+				this.driver = new RemoteWebDriver( asURL( appUrl ), this.abilities );
+			} catch ( Exception e ) {
+				Reporter.log( "\nThere was a problem loading the driver:", true );
+				e.printStackTrace();
+			}
+			this.util.waitTimer( 1, 2000 );
+	    	setWindowPosition( 800, 600, 20, 20 ); //TODO When using SauceLabs, just maximize instead
+	    	if ( this.isSauce && this.isGrid ) {
+				Reporter.log("Finished loading SauceLabs grid driver.");
+			} else {
+				Reporter.log("Finished loading standard grid driver.");
+			}
+		}
+		
+		public void loadLocalDriver() {
+			Reporter.log("Loading local WebDriver '" + this.browser + "' instance...");
+			switch ( browser ) {
+			case "chrome":
+				this.driver = new ChromeDriver( abilities );
+				break;
+			case "firefox":
+				this.abilities.setCapability( CapabilityType.SUPPORTS_JAVASCRIPT, true );
+				this.driver = new FirefoxDriver( abilities );
+				break;
+			case "ie":
+				this.driver = new InternetExplorerDriver( abilities );
+				break;
+			case "safari":
+				this.driver = new SafariDriver( abilities );
+				break;
+			default:
+				throw new IllegalStateException( "No local browser support for '" + browser + "'." );
+			}
+			this.util.waitTimer( 1, 2000 );
+	    	setWindowPosition( 800, 600, 20, 20 ); //TODO When using SauceLabs, just maximize instead
+	    	Reporter.log("Finished loading local WebDriver.");
+		}
+		
+		public void setWindowPosition( int width, int height, int fleft, int ftop ) {
+			this.driver.manage().window().setPosition( new Point(fleft, ftop) );
+			this.driver.manage().window().setSize( new Dimension( width, height) );
+		}
+		
+		@SuppressWarnings("unchecked") // JSONArray using legacy API
+		public void setCapabilities() {
+			Reporter.log("Loading WebDriver capabilities for '" + this.browser + "' instance...");
+			switch ( browser ) {
+			case "chrome":
+				System.setProperty( "webdriver.chrome.driver", DownloadDriver.CHROMEDRIVER.getAbsolutePath() );
+				this.setIsSauce( false );
+				this.setIsGrid( false );
+				this.abilities = DesiredCapabilities.chrome();
+				break;
+			case "firefox":
+				this.setIsSauce( false );
+				this.setIsGrid( false );
+				this.abilities = DesiredCapabilities.firefox();
+				this.abilities.setCapability( CapabilityType.SUPPORTS_JAVASCRIPT, true );
+				break;
+			case "ie":
+				System.setProperty("webdriver.ie.driver","IEDriverServer.exe");
+				this.setIsSauce( false );
+				this.setIsGrid( false );
+				this.abilities = DesiredCapabilities.internetExplorer();
+				break;
+			case "safari":
+				this.setIsSauce( false );
+				this.setIsGrid( false );
+				this.abilities = DesiredCapabilities.safari();
+				break;
+			case "saucegridchrome31":
+				if ( hubUrl.isEmpty() || !hubUrl.contains("@") ) {
+					throw new IllegalStateException( "This configuration requires that a SauceLabs formatted hub URL is defined." );
+				} else if ( hubUrl.contains("User") && hubUrl.contains("Key") ) {
+					hubUrl = hubUrl.replace("User", this.sauceUser );
+					hubUrl = hubUrl.replace("Key", this.sauceKey );
+					Reporter.log("Using Sauce Labs grid hub url at '" + hubUrl + "'.", true );
+				} else {
+					Reporter.log("Using raw hub url to connect to SauceLabs hub at '" + hubUrl + "'.", true );
+				}
+				this.setIsSauce( true );
+				this.setIsGrid( true );
+				this.abilities = DesiredCapabilities.chrome();
+				if ( testName.isEmpty() ) {
+					throw new IllegalArgumentException( "SauceLabs tests require that the test name capability be set." );
+				} else {
+					this.abilities.setCapability( "name", this.testName );
+				}
+				JSONArray tags = new JSONArray(); 
+				    tags.add( this.browser ); 
+				    tags.add("Windows 8"); 
+				    tags.add("1280x1024"); 
+				this.abilities.setCapability( "tags", tags );
+				this.abilities.setCapability( "platform", Platform.WIN8 );
+				this.abilities.setCapability( "version", "31" );
+				this.abilities.setCapability( "screen-resolution", "1280x1024" );
+				this.abilities.setCapability( "driver", "ALL" );
+				break;
+			case "localgridchrome":
+				if ( hubUrl.isEmpty() ) {
+					throw new IllegalStateException( "The hubUrl must be set to a valid Selenium grid hub." );
+				} else {
+					Reporter.log("Using raw hub url to connect to Selenium grid hub at '" + hubUrl + "'.", true );
+				}
+				this.setIsSauce( false );
+				this.setIsGrid( true );
+				this.abilities = DesiredCapabilities.chrome();
+				break;
+			case "localgridfirefox":
+				if ( hubUrl.isEmpty() ) {
+					throw new IllegalStateException( "The hubUrl must be set to a valid Selenium grid hub." );
+				} else {
+					Reporter.log("Using raw hub url to connect to Selenium grid hub at '" + hubUrl + "'.", true );
+				}
+				this.setIsSauce( false );
+				this.setIsGrid( true );
+				this.abilities = DesiredCapabilities.firefox();
+				break;
+			default:
+				throw new IllegalStateException( "Unsupported browser string '" + browser + "'." );
+			}
+			//driver = new Augmenter().augment( driver );
+			Reporter.log("Default application url: " + appUrl, true );
+			Reporter.log( "Finished setting up driver capabilities.", true );
+			
+		}
+		
+		public void setIsGrid( boolean is ) {
+			this.isGrid = is;
+		}
+		
+		public void setIsSauce( boolean is ) {
+			this.isSauce = is;
+		}
+
+		public boolean isSauce() {
+			return isSauce;
+		}
+		
 	}
 	
 }

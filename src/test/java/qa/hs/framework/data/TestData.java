@@ -23,6 +23,8 @@ public class TestData {
 			SeHelper se = new SeHelper.SeBuilder( thisTest.getName(), suiteParams.get( "browser" ) )
 			    .appUrl( suiteParams.get( "appUrl" ) ).sauceUser( suiteParams.get( "sauceUser" ) )
 			    .sauceKey( suiteParams.get( "sauceKey" ) ).hubUrl( suiteParams.get( "hubUrl" ) )
+			    .sauce( Boolean.parseBoolean( suiteParams.get( "isSauce" ) ) )
+			    .grid( Boolean.parseBoolean( suiteParams.get( "isGrid" ) ) )
 			    .build();
 			testData[i][0] = se;
 			testData[i][1] = thisTest;

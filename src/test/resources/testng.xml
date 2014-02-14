@@ -4,8 +4,11 @@
 	<listeners>
 		<listener class-name="qa.hs.framework.CustomReport" />
 	</listeners>
-	<parameter name="browser" value="gridchrome31" />
-	<parameter name="hubUrl" value="http://User:Key@ondemand.saucelabs.com:80/wd/hub" />
+	<parameter name="browser" value="firefox" />
+	<parameter name="isSauce" value="false" />
+	<parameter name="isGrid" value="false" />
+	<!-- <parameter name="hubUrl" value="http://User:Key@ondemand.saucelabs.com:80/wd/hub" />  if empty url use sauce? -->
+	<parameter name="hubUrl" value="http://localhost:4444/wd/hub" />
 	<parameter name="appUrl" value="http://search.maven.org/" />
 	<parameter name="sauceUser" value="austenjt" />
 	<parameter name="sauceKey" value="bde85696-2a40-486b-98de-38ff7e13d6fc" />

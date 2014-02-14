@@ -13,6 +13,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
+import org.openqa.selenium.remote.Augmenter;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -45,10 +46,10 @@ public final class SeHelper
 		this.sessionId = builder.sessionId;
 		this.hubUrl = builder.hubUrl;
 		this.driver = builder.driver;
-		this.util = builder.util;
 		this.abilities = builder.abilities;
 		this.isSauce = builder.isSauce;
-		this.setGrid(builder.isGrid);
+		this.isGrid = builder.isGrid;
+		this.util = new SeUtil( this.driver );
 	}	
 	
 	public void navigateToStart() {
@@ -166,7 +167,6 @@ public final class SeHelper
 		private final String browser; // final to make it a required option
 		private final String testName; // final to make it a required option
 		private String appUrl;
-		private SeUtil util;
 		private WebDriver driver;		
 		private String hubUrl;
 		private String sessionId;
@@ -221,7 +221,7 @@ public final class SeHelper
 			} else {
 				this.loadLocalDriver();
 			}
-			this.util = new SeUtil( this.driver );
+			this.driver = new Augmenter().augment( driver );
 			return new SeHelper( this );
 		}
 		
@@ -247,15 +247,15 @@ public final class SeHelper
 				Reporter.log( "\nThere was a problem loading the driver:", true );
 				e.printStackTrace();
 			}
-			this.util.waitTimer( 1, 2000 );
-	    	setWindowPosition( 800, 600, 20, 20 ); //TODO When using SauceLabs, just maximize instead
 	    	if ( this.isSauce && this.isGrid ) {
+	    		this.maximizeWindow();
 				Reporter.log("Finished loading SauceLabs grid driver.");
 			} else {
+				this.setWindowPosition( 800, 600, 20, 20 );
 				Reporter.log("Finished loading standard grid driver.");
 			}
 		}
-		
+
 		public void loadLocalDriver() {
 			Reporter.log("Loading local WebDriver '" + this.browser + "' instance...");
 			switch ( browser ) {
@@ -275,8 +275,7 @@ public final class SeHelper
 			default:
 				throw new IllegalStateException( "No local browser support for '" + browser + "'." );
 			}
-			this.util.waitTimer( 1, 2000 );
-	    	setWindowPosition( 800, 600, 20, 20 ); //TODO When using SauceLabs, just maximize instead
+	    	this.setWindowPosition( 800, 600, 20, 20 ); //TODO When using SauceLabs, just maximize instead
 	    	Reporter.log("Finished loading local WebDriver.");
 		}
 		
@@ -291,25 +290,17 @@ public final class SeHelper
 			switch ( browser ) {
 			case "chrome":
 				System.setProperty( "webdriver.chrome.driver", DownloadDriver.CHROMEDRIVER.getAbsolutePath() );
-				this.setIsSauce( false );
-				this.setIsGrid( false );
 				this.abilities = DesiredCapabilities.chrome();
 				break;
 			case "firefox":
-				this.setIsSauce( false );
-				this.setIsGrid( false );
 				this.abilities = DesiredCapabilities.firefox();
 				this.abilities.setCapability( CapabilityType.SUPPORTS_JAVASCRIPT, true );
 				break;
 			case "ie":
 				System.setProperty("webdriver.ie.driver","IEDriverServer.exe");
-				this.setIsSauce( false );
-				this.setIsGrid( false );
 				this.abilities = DesiredCapabilities.internetExplorer();
 				break;
 			case "safari":
-				this.setIsSauce( false );
-				this.setIsGrid( false );
 				this.abilities = DesiredCapabilities.safari();
 				break;
 			case "saucegridchrome31":
@@ -346,7 +337,6 @@ public final class SeHelper
 				} else {
 					Reporter.log("Using raw hub url to connect to Selenium grid hub at '" + hubUrl + "'.", true );
 				}
-				this.setIsSauce( false );
 				this.setIsGrid( true );
 				this.abilities = DesiredCapabilities.chrome();
 				break;
@@ -356,17 +346,14 @@ public final class SeHelper
 				} else {
 					Reporter.log("Using raw hub url to connect to Selenium grid hub at '" + hubUrl + "'.", true );
 				}
-				this.setIsSauce( false );
 				this.setIsGrid( true );
 				this.abilities = DesiredCapabilities.firefox();
 				break;
 			default:
 				throw new IllegalStateException( "Unsupported browser string '" + browser + "'." );
 			}
-			//driver = new Augmenter().augment( driver );
 			Reporter.log("Default application url: " + appUrl, true );
-			Reporter.log( "Finished setting up driver capabilities.", true );
-			
+			Reporter.log( "Finished setting up driver capabilities.", true );			
 		}
 		
 		public void setIsGrid( boolean is ) {
@@ -379,6 +366,10 @@ public final class SeHelper
 
 		public boolean isSauce() {
 			return isSauce;
+		}		
+
+		public void maximizeWindow() {
+			Reporter.log("Maximize window is not yet implemented.");		
 		}
 		
 	}

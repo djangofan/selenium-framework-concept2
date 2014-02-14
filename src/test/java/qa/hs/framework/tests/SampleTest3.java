@@ -14,9 +14,12 @@ import qa.hs.framework.pages.MavenSearchPage;
 
 public class SampleTest3 extends TestBase {
 	
+	SeHelper se;
+	
     @Test(dataProvider = "testdata", dataProviderClass = TestData.class)
     public void test3( SeHelper se, XmlTest testArgs ) {
     	Reporter.log( "Start of test3." );
+    	this.se = se;
 		se.navigateToStart();
         this.util = se.getUtil();
     	Map<String, String> params = testArgs.getAllParameters();
@@ -28,14 +31,13 @@ public class SampleTest3 extends TestBase {
     	ep.clickSearchButton();
     	util.waitTimer( 5, 1000 );
     	se.getDriver().quit();
-    	se.uploadResultToSauceLabs("", "build3", true );
     }
     
 	@Override
 	@AfterTest
 	public void afterTest() {
 		Reporter.log( "Called overridden afterTest() method...", true );
-		
+    	if ( se.isSauceTest() ) se.uploadResultToSauceLabs("", "build3", true );
 	}
 	
 }

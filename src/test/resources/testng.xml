@@ -4,12 +4,12 @@
 	<listeners>
 		<listener class-name="qa.hs.framework.CustomReport" />
 	</listeners>
-	<parameter name="browser" value="firefox" />
-	<parameter name="isSauce" value="false" />
-	<parameter name="isGrid" value="false" />
-	<!-- <parameter name="hubUrl" value="http://User:Key@ondemand.saucelabs.com:80/wd/hub" />  if empty url use sauce? -->
-	<parameter name="hubUrl" value="http://localhost:4444/wd/hub" />
-	<parameter name="appUrl" value="http://search.maven.org/" />
+	<parameter name="browser" value="saucegridchrome31" />
+	<parameter name="isSauce" value="true" />
+	<parameter name="isGrid" value="truee" />
+	<parameter name="hubUrl" value="http://User:Key@ondemand.saucelabs.com:80/wd/hub" />
+	<!-- <parameter name="hubUrl" value="http://localhost:4444/wd/hub" /> -->
+	<parameter name="appUrl" value="http://search.maven.org/#advancedsearch%7Cgav" />
 	<parameter name="sauceUser" value="austenjt" />
 	<parameter name="sauceKey" value="bde85696-2a40-486b-98de-38ff7e13d6fc" />
 	<test name="Test1">
@@ -19,27 +19,25 @@
       <class name="qa.hs.framework.tests.SampleTest1" />
 		</classes>
 	</test>
-  <!-- 
   <test name="Test2">
-    <parameter name="textString1" value="This is test 2." />
-    <parameter name="textString2" value="Can I ask a question about test 2?" />
+    <parameter name="textString1" value="apache" />
+    <parameter name="textString2" value="guice" />
     <classes>
       <class name="qa.hs.framework.tests.SampleTest2" />
     </classes>
   </test>
     <test name="Test3">
-    <parameter name="textString1" value="This is test 3." />
-    <parameter name="textString2" value="Can I ask a question about test 3?" />
+    <parameter name="textString1" value="sikuli-api" />
+    <parameter name="textString2" value="phantomjs-wrapper" />
     <classes>
       <class name="qa.hs.framework.tests.SampleTest3" />
     </classes>
   </test>
     <test name="Test4">
-    <parameter name="textString1" value="This is test 4." />
-    <parameter name="textString2" value="Can I ask a question about test 4?" />
+    <parameter name="textString1" value="maven" />
+    <parameter name="textString2" value="build" />
     <classes>
       <class name="qa.hs.framework.tests.SampleTest4" />
     </classes>
   </test>
-  -->
 </suite>

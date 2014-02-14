@@ -221,7 +221,6 @@ public final class SeHelper
 			} else {
 				this.loadLocalDriver();
 			}
-			this.driver = new Augmenter().augment( driver );
 			return new SeHelper( this );
 		}
 		
@@ -237,12 +236,13 @@ public final class SeHelper
 		
 		public void loadGridDriver() {
 			if ( this.isSauce && this.isGrid ) {
-				Reporter.log("Loading SauceLabs grid driver.");
+				Reporter.log( "Loading SauceLabs grid driver.", true );
 			} else {
-				Reporter.log("Loading standard grid driver.");
+				Reporter.log( "Loading standard grid driver.", true );
 			}
 			try {
 				this.driver = new RemoteWebDriver( asURL( appUrl ), this.abilities );
+				//this.driver = new Augmenter().augment( aDriver );
 			} catch ( Exception e ) {
 				Reporter.log( "\nThere was a problem loading the driver:", true );
 				e.printStackTrace();
@@ -257,7 +257,7 @@ public final class SeHelper
 		}
 
 		public void loadLocalDriver() {
-			Reporter.log("Loading local WebDriver '" + this.browser + "' instance...");
+			Reporter.log( "Loading local WebDriver '" + this.browser + "' instance...", true );
 			switch ( browser ) {
 			case "chrome":
 				this.driver = new ChromeDriver( abilities );
@@ -276,7 +276,7 @@ public final class SeHelper
 				throw new IllegalStateException( "No local browser support for '" + browser + "'." );
 			}
 	    	this.setWindowPosition( 800, 600, 20, 20 ); //TODO When using SauceLabs, just maximize instead
-	    	Reporter.log("Finished loading local WebDriver.");
+	    	Reporter.log( "Finished loading local WebDriver.", true );
 		}
 		
 		public void setWindowPosition( int width, int height, int fleft, int ftop ) {
@@ -286,7 +286,7 @@ public final class SeHelper
 		
 		@SuppressWarnings("unchecked") // JSONArray using legacy API
 		public void setCapabilities() {
-			Reporter.log("Loading WebDriver capabilities for '" + this.browser + "' instance...");
+			Reporter.log( "Loading WebDriver capabilities for '" + this.browser + "' instance...", true );
 			switch ( browser ) {
 			case "chrome":
 				System.setProperty( "webdriver.chrome.driver", DownloadDriver.CHROMEDRIVER.getAbsolutePath() );
@@ -369,7 +369,7 @@ public final class SeHelper
 		}		
 
 		public void maximizeWindow() {
-			Reporter.log("Maximize window is not yet implemented.");		
+			Reporter.log( "Maximize window is not yet implemented.", true );		
 		}
 		
 	}

@@ -241,7 +241,7 @@ public final class SeHelper
 				Reporter.log( "Loading standard grid driver.", true );
 			}
 			try {
-				this.driver = new RemoteWebDriver( asURL( appUrl ), this.abilities );
+				this.driver = new RemoteWebDriver( asURL( hubUrl ), this.abilities );
 				//this.driver = new Augmenter().augment( aDriver );
 			} catch ( Exception e ) {
 				Reporter.log( "\nThere was a problem loading the driver:", true );

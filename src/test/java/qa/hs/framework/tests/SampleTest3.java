@@ -14,30 +14,26 @@ import qa.hs.framework.pages.MavenSearchPage;
 
 public class SampleTest3 extends TestBase {
 	
-	SeHelper se;
-	
     @Test(dataProvider = "testdata", dataProviderClass = TestData.class)
     public void test3( SeHelper se, XmlTest testArgs ) {
-    	Reporter.log( "Start of test3." );
-    	this.se = se;
+    	Reporter.log( "Start of test3.", true );
+    	setHelper( se );
 		se.navigateToStart();
-        this.util = se.getUtil();
     	Map<String, String> params = testArgs.getAllParameters();
     	MavenSearchPage ep = new MavenSearchPage( se.getDriver() );
-    	util.waitTimer(1,  1000);
-    	Reporter.log( "Page title: " + se.getDriver().getTitle() );
-    	ep.clickSearchField();
-    	ep.setSearchFieldValue( params.get( "textString1" ) );
-    	ep.clickSearchButton();
-    	util.waitTimer( 5, 1000 );
-    	se.getDriver().quit();
+    	getUtil().waitTimer(1,  1000);
+    	Reporter.log( "Page title: " + se.getDriver().getTitle(), true );
+    	ep.clickArtifactField();;
+    	ep.setArtifactFieldValue( params.get( "textString1" ) );
+    	ep.clickAdvancedSearchButton();
+    	getUtil().waitTimer( 3, 1000 );
     }
     
-	@Override
 	@AfterTest
 	public void afterTest() {
 		Reporter.log( "Called overridden afterTest() method...", true );
-    	if ( se.isSauceTest() ) se.uploadResultToSauceLabs("", "build3", true );
+    	if ( getHelper().isSauceTest() ) getHelper().uploadResultToSauceLabs("", "build3", true );
+    	getHelper().getDriver().quit();
 	}
 	
 }

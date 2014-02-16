@@ -29,7 +29,7 @@ public class TestData {
 			testData[i][0] = se;
 			testData[i][1] = thisTest;
 			i++;
-			Reporter.log( "Added test: " + thisTest.getName(), true );
+			Reporter.log( i +  ": Added test: " + thisTest.getName(), true );
 		}
 	    return testData;
 	}

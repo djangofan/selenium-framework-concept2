@@ -187,6 +187,7 @@ public final class SeHelper
     }	
 	
 	public void setWindowPosition( int width, int height, int fleft, int ftop ) {
+		Reporter.log( "Resizing window to: " + width + "x" + height + " at " + fleft + "x" + ftop, true );
 		this.driver.manage().window().setPosition( new Point(fleft, ftop) );
 		this.driver.manage().window().setSize( new Dimension( width, height) );
 	}	

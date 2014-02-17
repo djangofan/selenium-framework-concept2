@@ -16,5 +16,10 @@ Selenium framework concept.  Demonstrates the following concepts:
 | 9 | Improved HTML Report | HTML test report shows human readable time values.  See CustomReport.html after tests finish. |
 | 10 | SauceLabs Integration | Project works with Selenium Grid, SauceLabs, or as standalone WebDriver.  Uploads test result to SauceLabs. |
 
-#### To run
-Test
+#### Setup
+
+To run this project:
+
+1.  Run grid hub with 'startGridHub.bat'
+2.  Run grid node with 'startGridNode.bat'
+3.  Run tests with 'mvn surefire:test' or 'mvn test' and look at HTML report generated under "target/surefire-reports" OR run tests as a TestNG project and look at report generated under "/test-output".

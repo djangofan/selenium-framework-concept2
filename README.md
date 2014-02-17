@@ -18,6 +18,8 @@ Selenium framework concept.  Demonstrates the following concepts:
 
 #### Setup
 
+This project will run with or without a Selenium grid.  When running as a Grid, this project also supports SauceLabs grid.   Configuration of this is found in the testng.xml file.
+
 To run this project:
 
 1.  Run grid hub with 'startGridHub.bat'

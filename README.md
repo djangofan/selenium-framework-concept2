@@ -15,3 +15,6 @@ Selenium framework concept.  Demonstrates the following concepts:
 | 8 | TestNG DataProvider | Implemented a DataProvider that loads parameterized data from the TestNG XML file/context itself. |
 | 9 | Improved HTML Report | HTML test report shows human readable time values.  See CustomReport.html after tests finish. |
 | 10 | SauceLabs Integration | Project works with Selenium Grid, SauceLabs, or as standalone WebDriver.  Uploads test result to SauceLabs. |
+
+#### To run
+Test

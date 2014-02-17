@@ -19,7 +19,6 @@ public class SampleTest1 extends TestBase {
 		Reporter.log( "Start of test1.", true );
     	Map<String, String> params = testArgs.getAllParameters();
 		setHelper( se );
-		se.setWindowPosition( 800, 600, 300, 20 );
 		se.setWindowPosition( 800, 600, Integer.parseInt( params.get( "xPos" ) ), Integer.parseInt( params.get( "yPos" ) ) );
 		se.navigateToStart();
     	MavenSearchPage ep = new MavenSearchPage( se.getDriver() );

@@ -5,15 +5,19 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.lightbody.bmp.core.har.Har;
+import net.lightbody.bmp.core.har.HarEntry;
+import net.lightbody.bmp.proxy.ProxyServer;
+
 import org.json.simple.JSONArray;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.Platform;
 import org.openqa.selenium.Point;
+import org.openqa.selenium.Proxy;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
-import org.openqa.selenium.remote.Augmenter;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -34,6 +38,8 @@ public final class SeHelper
 	private DesiredCapabilities abilities;
 	private boolean isSauce;
 	private boolean isGrid;
+	private ProxyServer server;
+	static int proxyPort = 5999;
 
 	private SeHelper( SeBuilder builder ) 
 	{
@@ -50,6 +56,7 @@ public final class SeHelper
 		this.isSauce = builder.isSauce;
 		this.isGrid = builder.isGrid;
 		this.util = new SeUtil( this.driver );
+		this.server = builder.server;
 	}	
 	
 	public void navigateToStart() {
@@ -158,6 +165,27 @@ public final class SeHelper
 	public void setGrid(boolean isGrid) {
 		this.isGrid = isGrid;
 	}
+	
+	public void setHar( String label ) {
+        server.newHar( label );
+    }
+	
+	public void getHar() {
+		//https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/HAR/Overview.html
+        Har har = server.getHar();
+        if (har == null) return;
+        // File harFile = new File("C:\\localdev\\bla.har");
+        // har.writeTo(harFile);
+        for ( HarEntry entry : har.getLog().getEntries() ) {
+            // Check for any 4XX and 5XX HTTP status codes
+            if ( ( String.valueOf(entry.getResponse().getStatus() ).startsWith("4") )
+                    || ( String.valueOf( entry.getResponse().getStatus() ).startsWith("5") ) ) {
+                Reporter.log( String.format("%s %d %s", entry.getRequest().getUrl(), entry.getResponse().getStatus(),
+                        entry.getResponse().getStatusText() ), true );
+                //throw new UnsupportedOperationException("Not implemented");
+            }
+        }
+    }
 
 	/*
 	 * SeBuilder inner class.  Using Builder design pattern.	
@@ -175,6 +203,7 @@ public final class SeHelper
 		private DesiredCapabilities abilities;
 		private boolean isGrid;
 		private boolean isSauce;
+		private ProxyServer server;
 		
 		public SeBuilder( String testName, String browser ) {
 			this.setIsSauce( false ); //sets a default if 'sauce' method is not used
@@ -241,8 +270,16 @@ public final class SeHelper
 				Reporter.log( "Loading standard grid driver.", true );
 			}
 			try {
+				//server = new ProxyServer( proxyPort );
+		        //server.start();
+		        //server.setCaptureHeaders(true);
+		        //server.blacklistRequests("https?://.*\\.google-analytics\\.com/.*", 200);
+		        //server.whitelistRequests(new String[]{"https?://.*\\.test.eesti\\.ee/.*"}, 200);	 
+                //Proxy proxy = server.seleniumProxy();
+		        //Reporter.log( String.format( "Browser mob proxy started, running at port: %d", proxyPort ), true );
+		        //this.abilities.setCapability( CapabilityType.PROXY, proxy );
 				this.driver = new RemoteWebDriver( asURL( hubUrl ), this.abilities );
-				//this.driver = new Augmenter().augment( aDriver );
+				
 			} catch ( Exception e ) {
 				Reporter.log( "\nThere was a problem loading the driver:", true );
 				e.printStackTrace();

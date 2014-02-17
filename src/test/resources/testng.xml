@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
-<suite name="Custom Report Suite" verbose="10" parallel="classes" thread-count="2">
+<suite name="Custom Report Suite" verbose="10" parallel="classes" thread-count="1">
 	<listeners>
 		<listener class-name="qa.hs.framework.CustomReport" />
 	</listeners>

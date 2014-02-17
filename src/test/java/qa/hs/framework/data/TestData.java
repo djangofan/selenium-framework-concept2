@@ -22,7 +22,7 @@ public class TestData {
 		for ( XmlTest thisTest : tests ) {
 			SeHelper se = new SeHelper.SeBuilder( thisTest.getName(), suiteParams.get( "browser" ) )
 			    .appUrl( suiteParams.get( "appUrl" ) ).sauceUser( suiteParams.get( "sauceUser" ) )
-			    .sauceKey( suiteParams.get( "sauceKey" ) ).hubUrl( suiteParams.get( "hubUrl" ) )
+			    .sauceKey( suiteParams.get( "sauceKey" ) ).hubUrl( suiteParams.get( "localHubUrl" ) )
 			    .sauce( Boolean.parseBoolean( suiteParams.get( "isSauce" ) ) )
 			    .grid( Boolean.parseBoolean( suiteParams.get( "isGrid" ) ) )
 			    .build();

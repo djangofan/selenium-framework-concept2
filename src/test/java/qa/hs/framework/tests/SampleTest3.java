@@ -17,9 +17,10 @@ public class SampleTest3 extends TestBase {
     @Test(dataProvider = "testdata", dataProviderClass = TestData.class)
     public void test3( SeHelper se, XmlTest testArgs ) {
     	Reporter.log( "Start of test3.", true );
-    	setHelper( se );
-		se.navigateToStart();
     	Map<String, String> params = testArgs.getAllParameters();
+		setHelper( se );
+		se.setWindowPosition( 800, 600, Integer.parseInt( params.get( "xPos" ) ), Integer.parseInt( params.get( "yPos" ) ) );
+		se.navigateToStart();
     	MavenSearchPage ep = new MavenSearchPage( se.getDriver() );
     	getUtil().waitTimer(1,  1000);
     	Reporter.log( "Page title: " + se.getDriver().getTitle(), true );

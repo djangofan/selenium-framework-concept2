@@ -1,25 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
-<suite name="Custom Report Suite" verbose="10" parallel="classes" thread-count="1">
+<suite name="Custom Report Suite" verbose="10" parallel="classes" thread-count="2">
 	<listeners>
 		<listener class-name="qa.hs.framework.CustomReport" />
 	</listeners>
-	<parameter name="browser" value="saucegridchrome31" />
-	<parameter name="isSauce" value="true" />
-	<parameter name="isGrid" value="truee" />
-	<parameter name="hubUrl" value="http://User:Key@ondemand.saucelabs.com:80/wd/hub" />
-	<!-- <parameter name="hubUrl" value="http://localhost:4444/wd/hub" /> -->
+	<parameter name="browser" value="localgridchrome" />
+	<parameter name="isSauce" value="false" />
+	<parameter name="isGrid" value="true" />
+	<parameter name="localHubUrl" value="http://localhost:4444/wd/hub" />
 	<parameter name="appUrl" value="http://search.maven.org/#advancedsearch%7Cgav" />
-	<parameter name="sauceUser" value="austenjt" />
-	<parameter name="sauceKey" value="bde85696-2a40-486b-98de-38ff7e13d6fc" />
+	<parameter name="sauceUser" value="" />
+	<parameter name="sauceKey" value="" />
 	<test name="Test1">
+	  <parameter name="xPos" value="20" />
+	  <parameter name="yPos" value="20" />
 		<parameter name="textString1" value="selenium-java" />
 		<parameter name="textString2" value="guava" />
 		<classes>
       <class name="qa.hs.framework.tests.SampleTest1" />
 		</classes>
 	</test>
-  <test name="Test2">
+  <!-- <test name="Test2">
+    <parameter name="xPos" value="220" />
+    <parameter name="yPos" value="20" />
     <parameter name="textString1" value="apache" />
     <parameter name="textString2" value="guice" />
     <classes>
@@ -27,13 +30,17 @@
     </classes>
   </test>
     <test name="Test3">
+    <parameter name="xPos" value="420" />
+    <parameter name="yPos" value="20" />
     <parameter name="textString1" value="sikuli-api" />
     <parameter name="textString2" value="phantomjs-wrapper" />
     <classes>
       <class name="qa.hs.framework.tests.SampleTest3" />
     </classes>
-  </test>
+  </test> -->
     <test name="Test4">
+    <parameter name="xPos" value="620" />
+    <parameter name="yPos" value="20" />
     <parameter name="textString1" value="maven" />
     <parameter name="textString2" value="build" />
     <classes>

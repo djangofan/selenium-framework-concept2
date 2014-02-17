@@ -13,7 +13,6 @@ import org.json.simple.JSONArray;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.Platform;
 import org.openqa.selenium.Point;
-import org.openqa.selenium.Proxy;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -185,7 +184,16 @@ public final class SeHelper
                 //throw new UnsupportedOperationException("Not implemented");
             }
         }
-    }
+    }	
+	
+	public void setWindowPosition( int width, int height, int fleft, int ftop ) {
+		this.driver.manage().window().setPosition( new Point(fleft, ftop) );
+		this.driver.manage().window().setSize( new Dimension( width, height) );
+	}	
+
+	public void maximizeWindow() {
+		Reporter.log( "Maximize window is not yet implemented.", true );		
+	}
 
 	/*
 	 * SeBuilder inner class.  Using Builder design pattern.	
@@ -213,7 +221,11 @@ public final class SeHelper
 		}
 		
 		public SeBuilder hubUrl( String hubUrl ) {
-			this.hubUrl = hubUrl;
+			if ( getIsSauce() ) {
+				this.hubUrl = "http://User:Key@ondemand.saucelabs.com:80/wd/hub";
+			} else {
+			    this.hubUrl = hubUrl;
+			}
 			return this;
 		}
 		
@@ -285,10 +297,8 @@ public final class SeHelper
 				e.printStackTrace();
 			}
 	    	if ( this.isSauce && this.isGrid ) {
-	    		this.maximizeWindow();
 				Reporter.log("Finished loading SauceLabs grid driver.");
 			} else {
-				this.setWindowPosition( 800, 600, 20, 20 );
 				Reporter.log("Finished loading standard grid driver.");
 			}
 		}
@@ -312,13 +322,7 @@ public final class SeHelper
 			default:
 				throw new IllegalStateException( "No local browser support for '" + browser + "'." );
 			}
-	    	this.setWindowPosition( 800, 600, 20, 20 ); //TODO When using SauceLabs, just maximize instead
 	    	Reporter.log( "Finished loading local WebDriver.", true );
-		}
-		
-		public void setWindowPosition( int width, int height, int fleft, int ftop ) {
-			this.driver.manage().window().setPosition( new Point(fleft, ftop) );
-			this.driver.manage().window().setSize( new Dimension( width, height) );
 		}
 		
 		@SuppressWarnings("unchecked") // JSONArray using legacy API
@@ -401,13 +405,9 @@ public final class SeHelper
 			this.isSauce = is;
 		}
 
-		public boolean isSauce() {
+		public boolean getIsSauce() {
 			return isSauce;
 		}		
-
-		public void maximizeWindow() {
-			Reporter.log( "Maximize window is not yet implemented.", true );		
-		}
 		
 	}
 	

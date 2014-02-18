@@ -14,6 +14,7 @@
 	<test name="Test1">
 	  <parameter name="xPos" value="20" />
 	  <parameter name="yPos" value="20" />
+	  <parameter name="proxy" value="true" />
 		<parameter name="textString1" value="selenium-java" />
 		<parameter name="textString2" value="guava" />
 		<classes>
@@ -23,6 +24,7 @@
   <!-- <test name="Test2">
     <parameter name="xPos" value="220" />
     <parameter name="yPos" value="20" />
+    <parameter name="proxy" value="false" />
     <parameter name="textString1" value="apache" />
     <parameter name="textString2" value="guice" />
     <classes>
@@ -32,6 +34,7 @@
     <test name="Test3">
     <parameter name="xPos" value="420" />
     <parameter name="yPos" value="20" />
+    <parameter name="proxy" value="false" />
     <parameter name="textString1" value="sikuli-api" />
     <parameter name="textString2" value="phantomjs-wrapper" />
     <classes>
@@ -41,6 +44,7 @@
     <test name="Test4">
     <parameter name="xPos" value="620" />
     <parameter name="yPos" value="20" />
+    <parameter name="proxy" value="false" />
     <parameter name="textString1" value="maven" />
     <parameter name="textString2" value="build" />
     <classes>

@@ -4,6 +4,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import net.lightbody.bmp.core.har.Har;
 import net.lightbody.bmp.core.har.HarEntry;
@@ -13,6 +14,7 @@ import org.json.simple.JSONArray;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.Platform;
 import org.openqa.selenium.Point;
+import org.openqa.selenium.Proxy;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -38,7 +40,7 @@ public final class SeHelper
 	private boolean isSauce;
 	private boolean isGrid;
 	private ProxyServer server;
-	static int proxyPort = 5999;
+	private int proxyPort;
 
 	private SeHelper( SeBuilder builder ) 
 	{
@@ -56,6 +58,7 @@ public final class SeHelper
 		this.isGrid = builder.isGrid;
 		this.util = new SeUtil( this.driver );
 		this.server = builder.server;
+		this.setProxyPort(builder.proxyPort);
 	}	
 	
 	public void navigateToStart() {
@@ -196,6 +199,14 @@ public final class SeHelper
 		Reporter.log( "Maximize window is not yet implemented.", true );		
 	}
 
+	public int getProxyPort() {
+		return proxyPort;
+	}
+
+	public void setProxyPort(int proxyPort) {
+		this.proxyPort = proxyPort;
+	}
+
 	/*
 	 * SeBuilder inner class.  Using Builder design pattern.	
 	 */
@@ -213,6 +224,7 @@ public final class SeHelper
 		private boolean isGrid;
 		private boolean isSauce;
 		private ProxyServer server;
+		private int proxyPort;
 		
 		public SeBuilder( String testName, String browser ) {
 			this.setIsSauce( false ); //sets a default if 'sauce' method is not used
@@ -255,6 +267,31 @@ public final class SeHelper
 			return this;
 		}
 		
+		public SeBuilder proxy( boolean enable ) {
+			proxyPort = getNextProxyPort( 42000, 42999 );
+			server = new ProxyServer( proxyPort );
+			if ( enable ) {
+		        try {
+					server.start();
+			        server.setCaptureHeaders(true);
+			        server.blacklistRequests("https?://.*\\.google-analytics\\.com/.*", 200);
+			        server.whitelistRequests(new String[]{"https?://.*\\.test.eesti\\.ee/.*"}, 200);	 
+	                Proxy proxy = server.seleniumProxy();
+	                this.abilities.setCapability( CapabilityType.PROXY, proxy );
+				} catch ( Exception e ) {
+					e.printStackTrace();
+				}
+		        Reporter.log( String.format( "Browser mob proxy started, running at port: %d", proxyPort ), true );		        
+			}
+			return this;
+		}
+		
+		private int getNextProxyPort( int min, int max ) {
+			Random rand = new Random();
+		    int randomNum = rand.nextInt((max - min) + 1) + min;
+		    return randomNum;
+		}
+
 		public SeHelper build() {
 			this.setCapabilities();
 			if ( this.isSauce || this.isGrid ) {
@@ -283,16 +320,7 @@ public final class SeHelper
 				Reporter.log( "Loading standard grid driver.", true );
 			}
 			try {
-				//server = new ProxyServer( proxyPort );
-		        //server.start();
-		        //server.setCaptureHeaders(true);
-		        //server.blacklistRequests("https?://.*\\.google-analytics\\.com/.*", 200);
-		        //server.whitelistRequests(new String[]{"https?://.*\\.test.eesti\\.ee/.*"}, 200);	 
-                //Proxy proxy = server.seleniumProxy();
-		        //Reporter.log( String.format( "Browser mob proxy started, running at port: %d", proxyPort ), true );
-		        //this.abilities.setCapability( CapabilityType.PROXY, proxy );
-				this.driver = new RemoteWebDriver( asURL( hubUrl ), this.abilities );
-				
+				this.driver = new RemoteWebDriver( asURL( hubUrl ), this.abilities );				
 			} catch ( Exception e ) {
 				Reporter.log( "\nThere was a problem loading the driver:", true );
 				e.printStackTrace();

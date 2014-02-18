@@ -25,6 +25,7 @@ public class TestData {
 			    .sauceKey( suiteParams.get( "sauceKey" ) ).hubUrl( suiteParams.get( "localHubUrl" ) )
 			    .sauce( Boolean.parseBoolean( suiteParams.get( "isSauce" ) ) )
 			    .grid( Boolean.parseBoolean( suiteParams.get( "isGrid" ) ) )
+			    .proxy( Boolean.parseBoolean( thisTest.getTestParameters().get( "proxy" ) ) )
 			    .build();
 			testData[i][0] = se;
 			testData[i][1] = thisTest;

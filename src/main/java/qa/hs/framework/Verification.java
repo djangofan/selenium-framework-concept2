@@ -8,6 +8,11 @@ import org.testng.asserts.IAssert;
 import org.testng.collections.Lists;
 import org.testng.collections.Maps;
 
+/**
+ * A class to generate soft assertions during a test.
+ * @author austenjt
+ *
+ */
 public class Verification extends Assertion {
 
 	private Map<AssertionError, IAssert> collectedErrors = Maps.newHashMap();
